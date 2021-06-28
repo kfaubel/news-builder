@@ -2,7 +2,7 @@
 // tslint:disable: no-console
 let axios = require('axios');
 
-const sampleNewsJson = require(`../msnbc-top-headlines.json`);
+const sampleNewsJson = require(__dirname + "/../msnbc-top-headlines.json");
 //const sampleNewsJson = require(`C:/Users/ken_faubel/projects/newsImage/msnbc-top-headlines.json`);
 
 export class NewsData {
