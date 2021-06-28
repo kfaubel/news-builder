@@ -45,6 +45,7 @@
   "homepage": "https://github.com/kfaubel/news-image#readme",
   "files": [
     "build/**/*",
-    "fonts/**/*"
+    "fonts/**/*",
+    "msnbc-top-headlines.json"
   ]
 }
