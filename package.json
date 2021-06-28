@@ -1,0 +1,50 @@
+{
+  "name": "news-image",
+  "version": "1.0.0",
+  "description": "Create images with news from newsapi.org sources",
+  "main": "index.js",
+  "scripts": {
+    "build": "npm run clean && tsc",
+    "clean": "shx rm -rf build",
+    "test": "npm run build && node app.js --debug --source msnbc --count 10 --key test outdir1",
+    "command": "node app.js --debug --source msnbc --count 10 --key test outdir1",
+    "start": "npm run build && npm run command",
+    "prepare": "npm run build",
+    "publish": "echo Published.",
+    "install": "echo Installed.",
+    "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
+    "lint": "tslint -p tsconfig.json"
+  },
+  "dependencies": {
+    "@types/express": "^4.17.6",
+    "axios": "^0.21.0",
+    "pureimage": "^0.2.5",
+    "jpeg-js": "^0.4.2",
+    "winston": "^3.2.1",
+    "xml-js": "^1.6.11",
+    "xml2js": "^0.4.23"
+  },
+  "devDependencies": {
+    "@types/node": "^12.12.22",
+    "ts-node-dev": "^1.0.0-pre.44",
+    "typescript": "^4.0.0",
+    "prettier": "^1.19.1",
+    "tslint": "^5.20.1",
+    "tslint-config-prettier": "^1.18.0",
+    "shx": "^0.3.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kfaubel/news-image.git"
+  },
+  "author": "Ken Faubel",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kfaubel/news-image/issues"
+  },
+  "homepage": "https://github.com/kfaubel/news-image#readme",
+  "files": [
+    "build/**/*",
+    "fonts/**/*"
+  ]
+}
