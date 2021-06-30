@@ -25,7 +25,7 @@ export class NewsData {
     // tslint:disable-next-line: member-ordering
     public async getData(source: string, key: string) {
         const url = `https://newsapi.org/v2/top-headlines?sources=${source}&apiKey=${key}`;       
-        this.logger.info("URL: " + url);
+        this.logger.verbose("URL: " + url);
 
         const newsItems:object[] = [];
         

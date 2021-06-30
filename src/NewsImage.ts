@@ -19,7 +19,7 @@ export class NewsImage {
 
     public async getImage(dataItem) {
         const title: string = `${dataItem.title}`
-        this.logger.info(`getImage: Title: ${title}`);
+        this.logger.verbose(`getImage: Title: ${title}`);
 
         const imageHeight: number = 1080; // 800;
         const imageWidth: number = 1920; // 1280;
