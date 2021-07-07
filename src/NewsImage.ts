@@ -6,9 +6,8 @@ const fs = require('fs');
 const axios = require('axios'); 
 const jpeg = require('jpeg-js');
 const pure = require('pureimage');
-// const pureTextPath = require('pureimage/src/text.js');
-// const pureregisterFont = require('pureimage/src/text.js');
 
+const fontDir = __dirname + "/../fonts";
 
 export class NewsImage {
     private logger: any;
@@ -41,10 +40,10 @@ export class NewsImage {
         const img = pure.make(imageWidth, imageHeight);
         const ctx = img.getContext('2d');
 
-        const fntBold = pure.registerFont('fonts/OpenSans-Bold.ttf','OpenSans-Bold');
-        const fntRegular = pure.registerFont('fonts/OpenSans-Regular.ttf','OpenSans-Regular');
-        const fntRegular2 = pure.registerFont('fonts/alata-regular.ttf','alata-regular');
-
+        const fntBold = pure.registerFont(fontDir + '/OpenSans-Bold.ttf','OpenSans-Bold');
+        const fntRegular = pure.registerFont(fontDir + '/OpenSans-Regular.ttf','OpenSans-Regular');
+        const fntRegular2 = pure.registerFont(fontDir + '/alata-regular.ttf','alata-regular');
+        
         fntBold.loadSync();
         fntRegular.loadSync();
         fntRegular2.loadSync();
@@ -53,7 +52,7 @@ export class NewsImage {
         ctx.fillRect(0,0,imageWidth, imageHeight);
 
         try {
-            this.logger.verbose(`PictureUrl: ${dataItem.pictureUrl}`);
+            // this.logger.verbose(`PictureUrl: ${dataItem.pictureUrl}`);
             const response:any = await axios.get(dataItem.pictureUrl, {responseType: "stream"} );
             let picture: any;
 
@@ -79,7 +78,6 @@ export class NewsImage {
         }
 
         // Draw the title
-        
         const titleLines: string[] = this.splitLine(title, 48, 2);       
 
         let lineNumber: number = 0;
@@ -98,8 +96,6 @@ export class NewsImage {
         //     ctx.fillText(descriptionLines[descriptionLine], DetailOffsetX, DetailOffsetY + (lineNumber++ * 80));            
         // }
 
-        this.logger.verbose(`Encoding jpeg: ${title}`);
-
         // Save the bitmap out to a jpeg image buffer
         const jpegImg = await jpeg.encode(img, 50);
         
@@ -108,8 +104,6 @@ export class NewsImage {
 
         const expires = new Date();
         expires.setMinutes(expires.getMinutes() + goodForMins);
-
-        this.logger.verbose(`getImage: Returning jpeg: ${title}`);
 
         return {
             expires: expires.toUTCString(),

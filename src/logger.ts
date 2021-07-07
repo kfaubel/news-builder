@@ -1,31 +1,34 @@
-// tslint:disable: no-var-requires
-// tslint:disable: no-console
-const { createLogger, format, transports } = require('winston');
-const { combine, timestamp, label, printf } = format;
+"use strict";
+// var timeStamp = new Date().toISOString();
 
-// Set up winston logging.
-// tslint:disable-next-line: no-shadowed-variable
-const logFormat = printf(({ level, message, label, timestamp }) => {
-    return `${timestamp} [${label}] ${level}: ${message}`;
-});
+export class Logger {
+    private module: string;
 
-const logger = createLogger({
-    format: combine(
-        label({ label: 'googleTopTen' }),
-        format.colorize(),
-        format.simple(),
-        format.timestamp(),
-        logFormat
-    ),
-    transports: [
-        new transports.Console({timestamp: true}),
-        new transports.File({ filename: 'goolgeTopTen.log', timestamp: true })
-    ]
-});
+    constructor(module: string) {
+        this.module = module;
+    }
 
-logger.level = 'info';
-logger.setLevel = (level) => {logger.level = level};
+    public error(text: string) {
+        console.error(`[${this.module}] ${text}`);
+    }
 
-logger.exitOnError = false;
+    public warn(text: string) {
+        console.warn(`[${this.module}] ${text}`);
+    }
 
-module.exports=logger;
+    public log(text: string) {
+        console.log(`[${this.module}] ${text}`);
+    }
+
+    public info(text: string) {
+        console.log(`[${this.module}] ${text}`);
+    }
+
+    public verbose(text: string) {
+        console.debug(`[${this.module}] ${text}`);
+    }
+
+    public dump(text: string, obj: object) {
+        console.log(`[${this.module}] ${text} ${JSON.stringify(obj, undefined, 2)}`);
+    }
+}

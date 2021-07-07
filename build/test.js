@@ -1,16 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-// lib/app.ts
 const fs = require("fs");
 const meow = require("meow");
-const { createLogger, format, transports } = require('winston');
-const { combine, timestamp, label, printf } = format;
-// tslint:disable: no-var-requires
-// tslint:disable: no-console
-const logFormat = printf(({ level, message, label, timestamp }) => {
-    return `${timestamp} [${label}] ${level}: ${message}`;
-});
-let logger = {};
+const Logger_1 = require("./Logger");
+const logger = new Logger_1.Logger("news-builder test");
 const cli = meow(`
 Usage:
     $ newsImage --source source-name --count count-number --debug  target-dir
@@ -51,63 +44,51 @@ const NewsImage_1 = require("./NewsImage");
 // Create a new express application instance
 async function update(imageDir, source, key, count) {
     logger.info(`NewsImage:update source=${source} count=${count}`);
-    const newsData = new NewsData_1.NewsData(logger);
-    const newsImage = new NewsImage_1.NewsImage(logger);
-    const data = await newsData.getData(source, key);
-    const imageList = [];
-    for (let i = 0; i < data.length; i++) {
-        const item = await newsImage.getImage(data[i]);
-        imageList[i] = item;
-    }
     try {
         logger.info(`Creating directory: ${imageDir}`);
         fs.mkdirSync(imageDir, { recursive: true });
     }
     catch (e) {
         logger.error(`Failure to create directory ${imageDir} - ${e}`);
+        process.exit(1);
     }
-    for (let i = 0; i < count; i++) {
-        let filename = `${imageDir}/${source}-${i}.${imageList[i].imageType}`;
-        logger.info(`Creating: ${filename}`);
-        fs.writeFileSync(filename, imageList[i].imageData.data);
+    const newsData = new NewsData_1.NewsData(logger);
+    const newsImage = new NewsImage_1.NewsImage(logger);
+    const data = await newsData.getData(source, key);
+    let exitStatus = 0;
+    for (let i = 0; i < data.length; i++) {
+        if (data[i] !== null && data[i].imageData !== null) {
+            const item = await newsImage.getImage(data[i]);
+            let filename = `${imageDir}/${source}-${i + 1}.${item.imageType}`;
+            logger.info(`Writing: ${filename}`);
+            fs.writeFileSync(filename, item.imageData.data);
+        }
+        else {
+            logger.error(`Unable to get image: ${i + 1}`);
+            exitStatus++;
+        }
     }
+    return exitStatus;
 }
 async function main() {
-    logger = createLogger({
-        format: combine(label({ label: 'newsImage' }), format.colorize(), format.simple(), format.timestamp(), logFormat),
-        transports: [
-            new transports.Console({ timestamp: true }),
-        ]
-    });
-    logger.exitOnError = false;
     let imageDir = ".";
     if (cli.input[0] !== undefined) {
         imageDir = cli.input[0];
     }
-    let repeatInterval = 0;
-    if (cli.flags.debug) {
-        logger.level = "verbose";
-    }
-    else {
-        logger.level = "info";
-    }
-    logger.verbose("CLI: " + JSON.stringify(cli, undefined, 2));
     logger.verbose(`Working Directory: ${imageDir}`);
     logger.verbose('====================================');
     logger.verbose(`Source: ${cli.flags.source}`);
     logger.verbose(`Key: ${cli.flags.key}`);
     logger.verbose(`Count: ${cli.flags.count}`);
     logger.verbose(`Target: ${cli.input[0]}`);
-    if (repeatInterval === 0) {
-        logger.verbose(`main: Running once.`);
-        await update(imageDir, cli.flags.source, cli.flags.key, cli.flags.count);
+    const exitStatus = await update(imageDir, cli.flags.source, cli.flags.key, cli.flags.count);
+    if (exitStatus === 0) {
+        logger.verbose("Done successfully.");
     }
     else {
-        logger.verbose(`main: Starting update every ${repeatInterval} seconds.`);
-        update(imageDir, cli.flags.source, cli.flags.key, cli.flags.count); // Do it once now.
-        const updater = setInterval(update, repeatInterval * 1000);
+        logger.error(`Exiting with errors: ${exitStatus}`);
     }
-    logger.verbose("Done.");
+    process.exit(exitStatus);
 }
 main();
-//# sourceMappingURL=main.js.map
+//# sourceMappingURL=test.js.map

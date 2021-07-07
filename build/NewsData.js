@@ -4,7 +4,7 @@ exports.NewsData = void 0;
 // tslint:disable: no-var-requires
 // tslint:disable: no-console
 let axios = require('axios');
-const sampleNewsJson = require(`../msnbc-top-headlines.json`);
+const sampleNewsJson = require(__dirname + "/../msnbc-top-headlines.json");
 //const sampleNewsJson = require(`C:/Users/ken_faubel/projects/newsImage/msnbc-top-headlines.json`);
 class NewsData {
     constructor(logger) {
@@ -21,7 +21,7 @@ class NewsData {
     // tslint:disable-next-line: member-ordering
     async getData(source, key) {
         const url = `https://newsapi.org/v2/top-headlines?sources=${source}&apiKey=${key}`;
-        this.logger.info("URL: " + url);
+        this.logger.verbose("URL: " + url);
         const newsItems = [];
         let newsJson;
         try {

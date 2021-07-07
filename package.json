@@ -4,16 +4,14 @@
   "description": "Create images with news from newsapi.org sources",
   "main": "index.js",
   "scripts": {
+    "start": "npm run build && npm run command",
+    "test": "npm run build && npm run command",
+    "command": "node app.js --debug --source msnbc --count 10 --key test outdir1",
     "build": "npm run clean && tsc",
     "clean": "shx rm -rf build",
-    "test": "npm run build && node app.js --debug --source msnbc --count 10 --key test outdir1",
-    "command": "node app.js --debug --source msnbc --count 10 --key test outdir1",
-    "start": "npm run build && npm run command",
     "prepare": "npm run build",
     "publish": "echo Published.",
-    "install": "echo Installed.",
-    "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
-    "lint": "tslint -p tsconfig.json"
+    "install": "echo Installed."
   },
   "dependencies": {
     "@types/express": "^4.17.6",
@@ -35,14 +33,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kfaubel/news-image.git"
+    "url": "git+https://github.com/kfaubel/news-builder.git"
   },
   "author": "Ken Faubel",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/kfaubel/news-image/issues"
+    "url": "https://github.com/kfaubel/news-builder/issues"
   },
-  "homepage": "https://github.com/kfaubel/news-image#readme",
+  "homepage": "https://github.com/kfaubel/news-builder#readme",
   "files": [
     "build/**/*",
     "fonts/**/*",
