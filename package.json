@@ -1,13 +1,12 @@
 {
   "name": "news-builder",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Create images with news from newsapi.org sources",
   "main": "index.js",
   "scripts": {
     "start": "npm run build && npm run command",
     "test": "npm run build && npm run command",
     "command": "node app.js --debug --source msnbc --count 10 --key test outdir1",
-    
     "build": "npm run clean && tsc",
     "clean": "shx rm -rf build/*",
     "prepare": "npm run build",
