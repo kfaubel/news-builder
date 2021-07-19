@@ -52,17 +52,49 @@ export class NewsImage {
         ctx.fillRect(0,0,imageWidth, imageHeight);
 
         try {
-            // this.logger.verbose(`PictureUrl: ${dataItem.pictureUrl}`);
+            this.logger.verbose(`PictureUrl: ${dataItem.pictureUrl}`);
             const response:any = await axios.get(dataItem.pictureUrl, {responseType: "stream"} );
-            let picture: any;
+            let picture: any = null;
+            // Get the last filename part of the url (e.g.: "content-00123.jpg")
+            const leaf: string = dataItem.pictureUrl.substring(dataItem.pictureUrl.lastIndexOf('/')+1, dataItem.pictureUrl.length) || "";
+            let expectedPictureFormat: string = "???";
 
             if (dataItem.pictureUrl.toUpperCase().endsWith("JPG")) {
-                picture = await pure.decodeJPEGFromStream(response.data);
+                expectedPictureFormat = "jpg";
             } else if (dataItem.pictureUrl.toUpperCase().endsWith("PNG")) {
-                picture = await pure.decodePNGFromStream(response.data);
+                expectedPictureFormat = "png";
             } else {
-                this.logger.warn(`Picture returned with unknown type (not jpg or png)`);
-                picture = null;
+                expectedPictureFormat = leaf.substring(leaf.lastIndexOf('.')+1, leaf.length) || "???";
+            }
+
+            try {
+                picture = await pure.decodeJPEGFromStream(response.data);
+                if (expectedPictureFormat !== "jpg") {
+                    //this.logger.warn(`NewsImage: ${dataItem.pictureUrl} was a jpg, expected: ${expectedPictureFormat}`);
+                }
+            } catch (e) {
+                // guess not
+                if (expectedPictureFormat === "jpg") {
+                    this.logger.warn(`NewsImage: ${dataItem.pictureUrl} was not a jpg as expectd`);
+                } 
+            }
+
+            if (picture === null) {
+                try {
+                    picture = await pure.decodePNGFromStream(response.data);
+                    if (expectedPictureFormat !== "png") {
+                        //this.logger.warn(`NewsImage: ${dataItem.pictureUrl} was a png, expected: ${expectedPictureFormat}`);
+                    }
+                } catch (e) {
+                    // guess not
+                    if (expectedPictureFormat === "png") {
+                        this.logger.warn(`NewsImage: ${dataItem.pictureUrl} was not a png as expectd`);
+                    } 
+                }
+            }
+
+            if (picture === null) {
+                this.logger.warn(`Picture" ${leaf} was not a jpg or png, likely a "webp"`);
             }
 
             if (picture !== null) {

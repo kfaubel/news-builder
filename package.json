@@ -7,8 +7,9 @@
     "start": "npm run build && npm run command",
     "test": "npm run build && npm run command",
     "command": "node app.js --debug --source msnbc --count 10 --key test outdir1",
+    
     "build": "npm run clean && tsc",
-    "clean": "shx rm -rf build",
+    "clean": "shx rm -rf build/*",
     "prepare": "npm run build",
     "publish": "echo Published.",
     "install": "echo Installed."

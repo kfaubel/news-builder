@@ -38,6 +38,8 @@ export class NewsData {
                 const response: any = await axios.get(url, {responseType: "json"} );
                 newsJson = response.data;
             }
+
+            this.logger.verbose(`NewsJson: ${JSON.stringify(newsJson, null, 4)}`);
              
             const articles = newsJson.articles;
 
