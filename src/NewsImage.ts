@@ -1,41 +1,55 @@
-import { doesNotReject } from "assert";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import axios from 'axios'; 
+import jpeg from 'jpeg-js';
+import { Stream } from 'stream';
+import { Logger } from './Logger';
+import { NewsItem } from './NewsData';
 
-// tslint:disable: no-var-requires
-// tslint:disable: object-literal-sort-keys
-const fs = require('fs');
-const axios = require('axios'); 
-const jpeg = require('jpeg-js');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const pure = require('pureimage');
 
 const fontDir = __dirname + "/../fonts";
 
-export class NewsImage {
-    private logger: any;
+export interface ImageResult {
+    expires: string;
+    imageType: string;
+    imageData: jpeg.BufferRet;
+    stream: null
+}
 
-    constructor(logger: any) {
+interface AxiosResponse {
+    data: Stream;
+    status: number;
+    statusText: string;
+}
+
+export class NewsImage {
+    private logger: Logger;
+
+    constructor(logger: Logger) {
         this.logger = logger;
     }
 
-    public async getImage(dataItem) {
-        const title: string = `${dataItem.title}`
+    public async getImage(dataItem: NewsItem): Promise<ImageResult> {
+        const title = `${dataItem.title}`
         this.logger.verbose(`getImage: Title: ${title}`);
 
-        const imageHeight: number = 1080; // 800;
-        const imageWidth: number = 1920; // 1280;
+        const imageHeight = 1080; // 800;
+        const imageWidth = 1920; // 1280;
 
-        const backgroundColor: string = 'rgb(250, 250, 250)';
-        const textColor: string = 'rgb(50, 5, 250)';
+        const backgroundColor = 'rgb(250, 250, 250)';
+        const textColor = 'rgb(50, 5, 250)';
 
-        const TitleOffsetX: number = 60;
-        const TitleOffsetY: number = 100;
+        const TitleOffsetX = 60;
+        const TitleOffsetY = 100;
 
-        const DetailOffsetX: number = 60;
-        const DetailOffsetY: number = 260;
+        const DetailOffsetX = 60;
+        const DetailOffsetY = 260;
 
-        const PictureX: number = 350;
-        const PictureY: number = 350;
-        const PictureWidth: number = 400;
-        const PictureHeight: number = 650;
+        const PictureX = 350;
+        const PictureY = 350;
+        const PictureWidth = 400;
+        const PictureHeight = 650;
 
         const img = pure.make(imageWidth, imageHeight);
         const ctx = img.getContext('2d');
@@ -52,16 +66,18 @@ export class NewsImage {
         ctx.fillRect(0,0,imageWidth, imageHeight);
 
         try {
-            this.logger.verbose(`PictureUrl: ${dataItem.pictureUrl}`);
-            const response:any = await axios.get(dataItem.pictureUrl, {responseType: "stream"} );
-            let picture: any = null;
+            const pictureUrl = (dataItem.pictureUrl as string);
+            this.logger.verbose(`PictureUrl: ${pictureUrl}`);
+            const response: AxiosResponse = await axios.get(pictureUrl, {responseType: "stream"} );
+            let picture: ImageData | null = null;
             // Get the last filename part of the url (e.g.: "content-00123.jpg")
-            const leaf: string = dataItem.pictureUrl.substring(dataItem.pictureUrl.lastIndexOf('/')+1, dataItem.pictureUrl.length) || "";
-            let expectedPictureFormat: string = "???";
+            
+            const leaf: string = pictureUrl.substring(pictureUrl.lastIndexOf('/')+1, pictureUrl.length) || "";
+            let expectedPictureFormat = "???";
 
-            if (dataItem.pictureUrl.toUpperCase().endsWith("JPG")) {
+            if (pictureUrl.toUpperCase().endsWith("JPG")) {
                 expectedPictureFormat = "jpg";
-            } else if (dataItem.pictureUrl.toUpperCase().endsWith("PNG")) {
+            } else if (pictureUrl.toUpperCase().endsWith("PNG")) {
                 expectedPictureFormat = "png";
             } else {
                 expectedPictureFormat = leaf.substring(leaf.lastIndexOf('.')+1, leaf.length) || "???";
@@ -112,7 +128,7 @@ export class NewsImage {
         // Draw the title
         const titleLines: string[] = this.splitLine(title, 48, 2);       
 
-        let lineNumber: number = 0;
+        let lineNumber = 0;
         for (const titleLine of Object.keys(titleLines)) {
             ctx.fillStyle = textColor; 
             ctx.font = "72pt 'OpenSans-Bold'";
@@ -129,7 +145,7 @@ export class NewsImage {
         // }
 
         // Save the bitmap out to a jpeg image buffer
-        const jpegImg = await jpeg.encode(img, 50);
+        const jpegImg: jpeg.BufferRet = jpeg.encode(img, 50);
         
         // How long is this image good for
         const goodForMins = 60;

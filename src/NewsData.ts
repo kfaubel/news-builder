@@ -1,18 +1,40 @@
-// tslint:disable: no-var-requires
-// tslint:disable: no-console
-let axios = require('axios');
+//const axios = require('axios');
+import axios from 'axios';
+import { Logger } from './Logger';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const sampleNewsJson = require(__dirname + "/../msnbc-top-headlines.json");
-//const sampleNewsJson = require(`C:/Users/ken_faubel/projects/newsImage/msnbc-top-headlines.json`);
+
+export interface NewsItem {
+    title?: string;
+    description?: string;
+    pictureUrl?: string;
+}
+
+interface Article {
+    title: string;
+    description: string;
+    urlToImage: string;
+}
+
+interface NewsJson {
+    articles: Array<Article>;
+}
+
+interface AxiosResponse {
+    data: NewsJson;
+    status: number;
+    statusText: string;
+}
 
 export class NewsData {
-    private logger: any;
+    private logger: Logger;
 
-    constructor(logger: any) {
+    constructor(logger: Logger) {
         this.logger = logger;
     }
 
-    private fixString(inStr) {
+    private fixString(inStr: string): string {
         let outStr = inStr;
         outStr = outStr.replace(/&amp;/g, "&");
         outStr = outStr.replace(/<b>/g, "");
@@ -22,29 +44,28 @@ export class NewsData {
         return outStr;
     }
 
-    // tslint:disable-next-line: member-ordering
-    public async getData(source: string, key: string) {
+    public async getData(source: string, key: string): Promise<Array<NewsItem>> {
         const url = `https://newsapi.org/v2/top-headlines?sources=${source}&apiKey=${key}`;       
         this.logger.verbose("URL: " + url);
 
-        const newsItems:object[] = [];
+        const newsItems: Array<NewsItem> = [];
         
-        let newsJson: any;
+        let newsJson: NewsJson;
 
         try {
             if (key === "test") {
                 newsJson = sampleNewsJson;
             } else {
-                const response: any = await axios.get(url, {responseType: "json"} );
+                const response: AxiosResponse = await axios.get(url, {responseType: "json"});
                 newsJson = response.data;
             }
 
             this.logger.verbose(`NewsJson: ${JSON.stringify(newsJson, null, 4)}`);
              
-            const articles = newsJson.articles;
+            const articles: Array<Article> = newsJson.articles;
 
             for(let i = 0; i < articles.length; i++) {
-                const newsItem: any = {};
+                const newsItem: NewsItem = {};
                 newsItem.title = this.fixString(articles[i].title);
                 newsItem.description = this.fixString(articles[i].description);
                 newsItem.pictureUrl = articles[i].urlToImage;

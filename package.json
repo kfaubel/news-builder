@@ -11,25 +11,27 @@
     "clean": "shx rm -rf build/*",
     "prepare": "npm run build",
     "publish": "echo Published.",
-    "install": "echo Installed."
+    "install": "echo Installed.",
+    "lint": "eslint"
   },
   "dependencies": {
     "@types/express": "^4.17.6",
     "axios": "^0.21.0",
-    "pureimage": "^0.2.5",
+    "dotenv": "^10.0.0",
     "jpeg-js": "^0.4.2",
-    "winston": "^3.2.1",
-    "xml-js": "^1.6.11",
-    "xml2js": "^0.4.23"
+    "meow": "^10.1.0",
+    "pureimage": "^0.2.5"
   },
   "devDependencies": {
     "@types/node": "^12.12.22",
-    "ts-node-dev": "^1.0.0-pre.44",
-    "typescript": "^4.0.0",
+    "@typescript-eslint/eslint-plugin": "^4.28.4",
+    "@typescript-eslint/parser": "^4.28.4",
+    "eslint": "^7.31.0",
+    "np": "^7.5.0",
     "prettier": "^1.19.1",
-    "tslint": "^5.20.1",
-    "tslint-config-prettier": "^1.18.0",
-    "shx": "^0.3.2"
+    "shx": "^0.3.2",
+    "ts-node-dev": "^1.1.8",
+    "typescript": "^4.0.0"
   },
   "repository": {
     "type": "git",

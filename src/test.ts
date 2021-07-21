@@ -1,8 +1,12 @@
 import fs = require('fs');
-import meow = require('meow');
 import { Logger } from "./Logger";
+// meow must be imported with require
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const meow = require('meow');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+require('dotenv').config();
 
-const logger = new Logger("news-builder test");
+const logger = new Logger("news-builder");
 
 const cli = meow(`
 Usage:
@@ -17,31 +21,31 @@ Options:
 Examples:
   node app.js --debug C:/Users/user1/images/newsImage
 `, {
-  flags: {
-    count: {
-      type: 'number',
-      default: 10,       // TODO: figure out why the default is not used
-      alias: 'c'         // TODO: figure out why -c does nto work
+    flags: {
+        count: {
+            type: 'number',
+            default: 10,       // TODO: figure out why the default is not used
+            alias: 'c'         // TODO: figure out why -c does nto work
+        },
+        source: {
+            type: 'string',
+            alias: 's',
+            isRequired: true
+        },
+        key: {
+            type: 'string',
+            alias: 'k',
+            isRequired: true
+        },
+        debug: {
+            alias: 'd',
+            default: false
+        },
     },
-    source: {
-      type: 'string',
-      alias: 's',
-      isRequired: true
-    },
-    key: {
-      type: 'string',
-      alias: 'k',
-      isRequired: true
-    },
-    debug: {
-      alias: 'd',
-      default: false
-    },
-  },
 });
 
-import { NewsData } from './NewsData';
-import { NewsImage } from './NewsImage';
+import { NewsData, NewsItem } from './NewsData';
+import { NewsImage, ImageResult } from './NewsImage';
 
 // Create a new express application instance
 async function update(imageDir: string, source: string, key: string, count: number) {
@@ -58,15 +62,15 @@ async function update(imageDir: string, source: string, key: string, count: numb
     const newsData = new NewsData(logger);
     const newsImage = new NewsImage(logger);
 
-    const data:any = await newsData.getData(source, key);
+    const data: Array<NewsItem> = await newsData.getData(source, key);
 
     let exitStatus = 0;
 
-    for(let i: number = 0; i < data.length; i++) {
-        if (data[i] !== null && data[i].imageData !== null) {
-        const item: any = await newsImage.getImage(data[i]);
+    for(let i = 0; i < data.length; i++) {
+        if (data[i] !== null && data[i].title !== null) {
+        const item: ImageResult = await newsImage.getImage(data[i]);
 
-        let filename = `${imageDir}/${source}-${i+1}.${item.imageType}`;
+        const filename = `${imageDir}/${source}-${i+1}.${item.imageType}`;
         logger.info(`Writing: ${filename}`);
         fs.writeFileSync(filename, item.imageData.data); 
         } else {
