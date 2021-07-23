@@ -1,2 +1,3 @@
 #!/usr/bin/env node
-require('./build/test.js');
+//import './build/test.js';
+require("./build/test");

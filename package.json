@@ -3,6 +3,7 @@
   "version": "1.0.2",
   "description": "Create images with news from newsapi.org sources",
   "main": "index.js",
+  "type": "commonjs",
   "scripts": {
     "start": "npm run build && npm run command",
     "test": "npm run build && npm run command",
@@ -17,6 +18,7 @@
   "dependencies": {
     "@types/express": "^4.17.6",
     "axios": "^0.21.0",
+    "dateformat": "^4.5.1",
     "dotenv": "^10.0.0",
     "jpeg-js": "^0.4.2",
     "meow": "^10.1.0",

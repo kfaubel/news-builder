@@ -1,20 +1,22 @@
 //const axios = require('axios');
+import * as fs from 'fs';
+import path from 'path';
 import axios from 'axios';
-import { Logger } from './Logger';
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const sampleNewsJson = require(__dirname + "/../msnbc-top-headlines.json");
+import { Logger } from './Logger.js';
 
 export interface NewsItem {
     title?: string;
     description?: string;
     pictureUrl?: string;
+    publishedAt?: string;
+    source?: string;
 }
 
 interface Article {
     title: string;
     description: string;
     urlToImage: string;
+    publishedAt: string;
 }
 
 interface NewsJson {
@@ -29,9 +31,11 @@ interface AxiosResponse {
 
 export class NewsData {
     private logger: Logger;
+    private dirname: string;
 
-    constructor(logger: Logger) {
+    constructor(logger: Logger, dirname: string) {
         this.logger = logger;
+        this.dirname = dirname;
     }
 
     private fixString(inStr: string): string {
@@ -54,7 +58,9 @@ export class NewsData {
 
         try {
             if (key === "test") {
-                newsJson = sampleNewsJson;
+                const sampleNewsFile = path.join(this.dirname, "..", "msnbc-top-headlines.json");
+                const sampleBuffer = fs.readFileSync(sampleNewsFile);
+                newsJson = JSON.parse(sampleBuffer.toString());
             } else {
                 const response: AxiosResponse = await axios.get(url, {responseType: "json"});
                 newsJson = response.data;
@@ -69,6 +75,8 @@ export class NewsData {
                 newsItem.title = this.fixString(articles[i].title);
                 newsItem.description = this.fixString(articles[i].description);
                 newsItem.pictureUrl = articles[i].urlToImage;
+                newsItem.publishedAt = articles[i].publishedAt;
+                newsItem.source = source;
 
                 newsItems[i] = newsItem;
 

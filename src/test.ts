@@ -1,12 +1,21 @@
-import fs = require('fs');
-import { Logger } from "./Logger";
-// meow must be imported with require
+import * as fs from 'fs'; //= require('fs');
+//import fs = require('fs');
+import path from 'path';
+import { fileURLToPath, URL } from 'url';
+import { Logger } from "./Logger.js";
+import { NewsData, NewsItem } from './NewsData.js';
+import { NewsImage, ImageResult } from './NewsImage.js';
+
+//import meow from 'meow';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const meow = require('meow');
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-require('dotenv').config();
 
-const logger = new Logger("news-builder");
+// meow must be imported with require
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+
+const logger = new Logger("news-builder", "info");
+
+//const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
 const cli = meow(`
 Usage:
@@ -21,20 +30,23 @@ Options:
 Examples:
   node app.js --debug C:/Users/user1/images/newsImage
 `, {
+//    importMeta: import.meta,
     flags: {
         count: {
             type: 'number',
-            default: 10,       // TODO: figure out why the default is not used
-            alias: 'c'         // TODO: figure out why -c does nto work
+            default: 10,       
+            alias: 'c'         
         },
         source: {
             type: 'string',
             alias: 's',
+            default: "msnbc",
             isRequired: true
         },
         key: {
             type: 'string',
             alias: 'k',
+            default: "test",
             isRequired: true
         },
         debug: {
@@ -44,57 +56,61 @@ Examples:
     },
 });
 
-import { NewsData, NewsItem } from './NewsData';
-import { NewsImage, ImageResult } from './NewsImage';
-
-// Create a new express application instance
-async function update(imageDir: string, source: string, key: string, count: number) {
-    logger.info(`NewsImage:update source=${source} count=${count}`);
-
-    try {
-        logger.info(`Creating directory: ${imageDir}`);
-        fs.mkdirSync(imageDir, { recursive: true })
-    } catch (e) {
-        logger.error(`Failure to create directory ${imageDir} - ${e}`);
-        process.exit(1);
-    }
-
-    const newsData = new NewsData(logger);
-    const newsImage = new NewsImage(logger);
-
-    const data: Array<NewsItem> = await newsData.getData(source, key);
-
-    let exitStatus = 0;
-
-    for(let i = 0; i < data.length; i++) {
-        if (data[i] !== null && data[i].title !== null) {
-        const item: ImageResult = await newsImage.getImage(data[i]);
-
-        const filename = `${imageDir}/${source}-${i+1}.${item.imageType}`;
-        logger.info(`Writing: ${filename}`);
-        fs.writeFileSync(filename, item.imageData.data); 
-        } else {
-            logger.error(`Unable to get image: ${i+1}`);
-            exitStatus++;
-        }
-    }
-    return exitStatus;
-}
-
 async function main() {
-    let imageDir = ".";
-    if (cli.input[0] !== undefined) {
-        imageDir = cli.input[0];
+    if (cli.flags.debug) {
+        logger.setLevel("verbose");    
     }
+
+    logger.verbose(JSON.stringify(cli, null, 4));
+
+    // Get the current directory (old __dirname)
+    //const dirname = path.dirname(fileURLToPath(new URL(import.meta.url)));
+    const dirname = __dirname;
+
+    if(!fs.existsSync(dirname)) {
+        logger.info(`Could not determine __dirname ${dirname}`);
+        logger.error(`Exiting with errors: 98`)
+        return (98);
+    }
+
+    const imageDir = path.join(dirname, "..", cli.input[0]);
+    // ?? imageDir = path.join(dirname, "..", cli.input[0]).replace(/\\/g, '/').replace("/C:", "");
     
-    logger.verbose(`Working Directory: ${imageDir}`);
     logger.verbose('====================================');
     logger.verbose(`Source: ${cli.flags.source}`);
     logger.verbose(`Key: ${cli.flags.key}`);
     logger.verbose(`Count: ${cli.flags.count}`);
     logger.verbose(`Target: ${cli.input[0]}`);
+    logger.verbose(`Out dir: ${imageDir}`);
+    logger.verbose('====================================');
 
-    const exitStatus = await update(imageDir, cli.flags.source, cli.flags.key, cli.flags.count);
+    // const exitStatus = await update(imageDir, cli.flags.source, cli.flags.key, cli.flags.count, __dirname);
+    try {
+        fs.mkdirSync(imageDir, { recursive: true });
+    } catch (e) {
+        logger.error(`Failure to create output directory ${imageDir} - ${e}`);
+        return (99);
+    }
+
+    const newsData  = new NewsData(logger, dirname);
+    const newsImage = new NewsImage(logger, dirname);
+
+    const data: Array<NewsItem> = await newsData.getData(cli.flags.source, cli.flags.key);
+
+    let exitStatus = 0;
+
+    for(let i = 0; i < data.length; i++) {
+        if (data[i] !== null && data[i].title !== null) {
+            const item: ImageResult = await newsImage.getImage(data[i]);
+
+            const filename = `${imageDir}/${cli.flags.source}-${i+1}.${item.imageType}`;
+            logger.info(`Writing: ${filename}`);
+            fs.writeFileSync(filename, item.imageData.data); 
+        } else {
+            logger.error(`Unable to get image: ${i+1}`);
+            exitStatus++;
+        }
+    }
 
     if (exitStatus === 0) {
         logger.verbose("Done successfully.");

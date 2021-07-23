@@ -1,14 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import axios from 'axios'; 
 import jpeg from 'jpeg-js';
+import path from 'path';
+import dateformat from 'dateformat';
 import { Stream } from 'stream';
-import { Logger } from './Logger';
-import { NewsItem } from './NewsData';
+import { Logger } from './Logger.js';
+import { NewsItem } from './NewsData.js';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const pure = require('pureimage');
+//const pure = require('pureimage');
 
-const fontDir = __dirname + "/../fonts";
+import * as pure from 'pureimage';
 
 export interface ImageResult {
     expires: string;
@@ -25,9 +27,11 @@ interface AxiosResponse {
 
 export class NewsImage {
     private logger: Logger;
+    private dirname: string;
 
-    constructor(logger: Logger) {
+    constructor(logger: Logger, dirname: string) {
         this.logger = logger;
+        this.dirname = dirname;
     }
 
     public async getImage(dataItem: NewsItem): Promise<ImageResult> {
@@ -42,6 +46,10 @@ export class NewsImage {
 
         const TitleOffsetX = 60;
         const TitleOffsetY = 100;
+        const TitleSpacingY = 80; // Offset to additiona lines
+
+        const CreditOffsetX = 60;
+        const CreditOffsetY = 20; // up from the bottom
 
         const DetailOffsetX = 60;
         const DetailOffsetY = 260;
@@ -54,9 +62,12 @@ export class NewsImage {
         const img = pure.make(imageWidth, imageHeight);
         const ctx = img.getContext('2d');
 
-        const fntBold = pure.registerFont(fontDir + '/OpenSans-Bold.ttf','OpenSans-Bold');
-        const fntRegular = pure.registerFont(fontDir + '/OpenSans-Regular.ttf','OpenSans-Regular');
-        const fntRegular2 = pure.registerFont(fontDir + '/alata-regular.ttf','alata-regular');
+        const titleFont =  "72pt 'OpenSans-Bold'";
+        const creditFont = "24pt 'OpenSans-Bold'";
+
+        const fntBold = pure.registerFont(path.join(this.dirname, "..", "fonts", "OpenSans-Bold.ttf"),'OpenSans-Bold');
+        const fntRegular = pure.registerFont(path.join(this.dirname, "..", "fonts", "OpenSans-Regular.ttf"),'OpenSans-Regular');
+        const fntRegular2 = pure.registerFont(path.join(this.dirname, "..", "fonts", "alata-regular.ttf"),'alata-regular');
         
         fntBold.loadSync();
         fntRegular.loadSync();
@@ -69,7 +80,7 @@ export class NewsImage {
             const pictureUrl = (dataItem.pictureUrl as string);
             this.logger.verbose(`PictureUrl: ${pictureUrl}`);
             const response: AxiosResponse = await axios.get(pictureUrl, {responseType: "stream"} );
-            let picture: ImageData | null = null;
+            let picture: jpeg.BufferRet | null = null;
             // Get the last filename part of the url (e.g.: "content-00123.jpg")
             
             const leaf: string = pictureUrl.substring(pictureUrl.lastIndexOf('/')+1, pictureUrl.length) || "";
@@ -126,23 +137,21 @@ export class NewsImage {
         }
 
         // Draw the title
+        ctx.fillStyle = textColor; 
+        ctx.font = titleFont;
+
         const titleLines: string[] = this.splitLine(title, 48, 2);       
 
-        let lineNumber = 0;
-        for (const titleLine of Object.keys(titleLines)) {
-            ctx.fillStyle = textColor; 
-            ctx.font = "72pt 'OpenSans-Bold'";
-            ctx.fillText(titleLines[titleLine], TitleOffsetX, TitleOffsetY + (lineNumber++ * 80));
-        }
-
-        // lineNumber = 0;
-        // const descriptionLines: string[] = this.splitLine(dataItem.description, 75, 3);
-
-        // for (const descriptionLine of Object.keys(descriptionLines)) {
-        //     ctx.fillStyle = textColor; 
-        //     ctx.font = "48pt 'alata-regular'";
-        //     ctx.fillText(descriptionLines[descriptionLine], DetailOffsetX, DetailOffsetY + (lineNumber++ * 80));            
-        // }
+        for (let titleLine = 0; titleLine < titleLines.length; titleLine++) {            
+            ctx.fillText(titleLines[titleLine], TitleOffsetX, TitleOffsetY + (titleLine * TitleSpacingY));
+        } 
+        
+        // Draw credits at the bottom
+        const published: Date = new Date((dataItem.publishedAt || "").toString());
+        const credits = `Source: ${dataItem.source} from newsapi.org, ${dateformat(published, "mmmm dS, yyyy, h:MM TT")}`
+        ctx.fillStyle = textColor; 
+        ctx.font = creditFont;
+        ctx.fillText(credits, CreditOffsetX, imageHeight - CreditOffsetY);
 
         // Save the bitmap out to a jpeg image buffer
         const jpegImg: jpeg.BufferRet = jpeg.encode(img, 50);
