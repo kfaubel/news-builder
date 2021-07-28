@@ -7,4 +7,9 @@
 // module.exports = { NewsData, NewsImage };
 
 // This does
-module.exports = Object.assign({}, require('./build/NewsData'), require('./build/NewsImage'));
+//module.exports = Object.assign({}, require('./build/NewsData'), require('./build/NewsImage'));
+
+import { NewsData } from './build/NewsData';
+import { NewsImage } from './build/NewsImage';
+
+export { NewsData, NewsImage};

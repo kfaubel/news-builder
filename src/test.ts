@@ -6,12 +6,8 @@ import { Logger } from "./Logger.js";
 import { NewsData, NewsItem } from './NewsData.js';
 import { NewsImage, ImageResult } from './NewsImage.js';
 
-//import meow from 'meow';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const meow = require('meow');
-
-// meow must be imported with require
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+// Use meow v9 for now.  V10 does not work without project level changes to handle "importMeta import.meta"
+import meow = require('meow');
 
 const logger = new Logger("news-builder", "info");
 
@@ -30,7 +26,7 @@ Options:
 Examples:
   node app.js --debug C:/Users/user1/images/newsImage
 `, {
-//    importMeta: import.meta,
+//    importMeta: import.meta, // needed for meow v10, expect to battle dragons
     flags: {
         count: {
             type: 'number',
