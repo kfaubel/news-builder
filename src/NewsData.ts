@@ -1,4 +1,3 @@
-//const axios = require('axios');
 import * as fs from 'fs';
 import path from 'path';
 import axios from 'axios';

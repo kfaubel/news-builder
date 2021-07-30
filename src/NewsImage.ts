@@ -3,20 +3,15 @@ import axios from 'axios';
 import jpeg from 'jpeg-js';
 import path from 'path';
 import dateformat from 'dateformat';
+import * as pure from 'pureimage';
 import { Stream } from 'stream';
 import { Logger } from './Logger.js';
 import { NewsItem } from './NewsData.js';
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-//const pure = require('pureimage');
-
-import * as pure from 'pureimage';
 
 export interface ImageResult {
     expires: string;
     imageType: string;
     imageData: jpeg.BufferRet;
-    stream: null
 }
 
 interface AxiosResponse {
@@ -38,8 +33,8 @@ export class NewsImage {
         const title = `${dataItem.title}`
         this.logger.verbose(`getImage: Title: ${title}`);
 
-        const imageHeight = 1080; // 800;
-        const imageWidth = 1920; // 1280;
+        const imageHeight = 1080; 
+        const imageWidth = 1920; 
 
         const backgroundColor = 'rgb(250, 250, 250)';
         const textColor = 'rgb(50, 5, 250)';
@@ -165,8 +160,7 @@ export class NewsImage {
         return {
             expires: expires.toUTCString(),
             imageType: "jpg",
-            imageData: jpegImg,
-            stream: null
+            imageData: jpegImg
         }
     }
 

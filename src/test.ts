@@ -1,5 +1,5 @@
-import * as fs from 'fs'; //= require('fs');
-//import fs = require('fs');
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import * as fs from 'fs';
 import path from 'path';
 import { fileURLToPath, URL } from 'url';
 import { Logger } from "./Logger.js";
@@ -11,6 +11,7 @@ import meow = require('meow');
 
 const logger = new Logger("news-builder", "info");
 
+// Use this when import.meta replaces __dirname
 //const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
 const cli = meow(`

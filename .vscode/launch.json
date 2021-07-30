@@ -9,8 +9,6 @@
             "request": "launch",
             "name": "Debug App",
              "preLaunchTask": "npm: build",
- //           "preLaunchTask": "tsc: build - tsconfig.json",
- //           "preLaunchTask": "typescript",
             "program": "${workspaceFolder}/app.js",
             "cwd" : "${workspaceFolder}",
             "protocol": "inspector",
