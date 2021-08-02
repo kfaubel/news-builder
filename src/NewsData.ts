@@ -1,7 +1,7 @@
-import * as fs from 'fs';
-import path from 'path';
-import axios from 'axios';
-import { Logger } from './Logger.js';
+import * as fs from "fs";
+import path from "path";
+import axios from "axios";
+import { Logger } from "./Logger.js";
 
 export interface NewsItem {
     title?: string;
@@ -83,7 +83,7 @@ export class NewsData {
                 // this.logger.info(`Article: ${i} ${newsItems[i].title}`);
             }
         } catch (e) {
-            this.logger.error("Read article data: " + e);
+            this.logger.error(`Read article data: ${e}`);
         }
 
         return newsItems;

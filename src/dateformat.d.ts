@@ -1,4 +1,4 @@
-declare module 'dateformat' {
+declare module "dateformat" {
     interface _dateformat {
       /**
        * Returns a string representing date using format mask.
@@ -43,7 +43,7 @@ declare module 'dateformat' {
         monthNames: string[]
       }
     }
-    let dateformat: _dateformat
+    let dateformat: _dateformat;
     export default dateformat;
   }
   

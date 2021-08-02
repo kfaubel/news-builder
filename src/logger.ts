@@ -16,13 +16,13 @@ export class Logger {
     
     public setLevel(levelStr: string): void {
         switch (levelStr) {
-            case "error":   this.level = this._ERROR; break;
-            case "warn":    this.level = this._WARN; break;
-            case "info":    this.level = this._INFO; break;
-            case "debug":   this.level = this._DEBUG; break;
-            case "verbose": this.level = this._VERBOSE; break;
-            case "trace":   this.level = this._VERBOSE; break;
-            default: console.log(`Unexpected level: ${levelStr}, using warn`);
+        case "error":   this.level = this._ERROR; break;
+        case "warn":    this.level = this._WARN; break;
+        case "info":    this.level = this._INFO; break;
+        case "debug":   this.level = this._DEBUG; break;
+        case "verbose": this.level = this._VERBOSE; break;
+        case "trace":   this.level = this._VERBOSE; break;
+        default: console.log(`Unexpected level: ${levelStr}, using warn`);
         }
     }
 

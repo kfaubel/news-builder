@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import axios from 'axios'; 
-import jpeg from 'jpeg-js';
-import path from 'path';
-import dateformat from 'dateformat';
-import * as pure from 'pureimage';
-import { Stream } from 'stream';
-import { Logger } from './Logger.js';
-import { NewsItem } from './NewsData.js';
+import axios from "axios"; 
+import jpeg from "jpeg-js";
+import path from "path";
+import dateformat from "dateformat";
+import * as pure from "pureimage";
+import { Stream } from "stream";
+import { Logger } from "./Logger.js";
+import { NewsItem } from "./NewsData.js";
 
 export interface ImageResult {
     expires: string;
@@ -30,14 +30,14 @@ export class NewsImage {
     }
 
     public async getImage(dataItem: NewsItem): Promise<ImageResult> {
-        const title = `${dataItem.title}`
+        const title = `${dataItem.title}`;
         this.logger.verbose(`getImage: Title: ${title}`);
 
         const imageHeight = 1080; 
         const imageWidth = 1920; 
 
-        const backgroundColor = 'rgb(250, 250, 250)';
-        const textColor = 'rgb(50, 5, 250)';
+        const backgroundColor = "rgb(250, 250, 250)";
+        const textColor = "rgb(50, 5, 250)";
 
         const TitleOffsetX = 60;
         const TitleOffsetY = 100;
@@ -55,14 +55,14 @@ export class NewsImage {
         const PictureHeight = 650;
 
         const img = pure.make(imageWidth, imageHeight);
-        const ctx = img.getContext('2d');
+        const ctx = img.getContext("2d");
 
         const titleFont =  "72pt 'OpenSans-Bold'";
         const creditFont = "24pt 'OpenSans-Bold'";
 
-        const fntBold = pure.registerFont(path.join(this.dirname, "..", "fonts", "OpenSans-Bold.ttf"),'OpenSans-Bold');
-        const fntRegular = pure.registerFont(path.join(this.dirname, "..", "fonts", "OpenSans-Regular.ttf"),'OpenSans-Regular');
-        const fntRegular2 = pure.registerFont(path.join(this.dirname, "..", "fonts", "alata-regular.ttf"),'alata-regular');
+        const fntBold     = pure.registerFont(path.join(this.dirname, "..", "fonts", "OpenSans-Bold.ttf"),"OpenSans-Bold");
+        const fntRegular  = pure.registerFont(path.join(this.dirname, "..", "fonts", "OpenSans-Regular.ttf"),"OpenSans-Regular");
+        const fntRegular2 = pure.registerFont(path.join(this.dirname, "..", "fonts", "alata-regular.ttf"),"alata-regular");
         
         fntBold.loadSync();
         fntRegular.loadSync();
@@ -78,7 +78,7 @@ export class NewsImage {
             let picture: jpeg.BufferRet | null = null;
             // Get the last filename part of the url (e.g.: "content-00123.jpg")
             
-            const leaf: string = pictureUrl.substring(pictureUrl.lastIndexOf('/')+1, pictureUrl.length) || "";
+            const leaf: string = pictureUrl.substring(pictureUrl.lastIndexOf("/")+1, pictureUrl.length) || "";
             let expectedPictureFormat = "???";
 
             if (pictureUrl.toUpperCase().endsWith("JPG")) {
@@ -86,7 +86,7 @@ export class NewsImage {
             } else if (pictureUrl.toUpperCase().endsWith("PNG")) {
                 expectedPictureFormat = "png";
             } else {
-                expectedPictureFormat = leaf.substring(leaf.lastIndexOf('.')+1, leaf.length) || "???";
+                expectedPictureFormat = leaf.substring(leaf.lastIndexOf(".")+1, leaf.length) || "???";
             }
 
             try {
@@ -143,7 +143,7 @@ export class NewsImage {
         
         // Draw credits at the bottom
         const published: Date = new Date((dataItem.publishedAt || "").toString());
-        const credits = `Source: ${dataItem.source} from newsapi.org, ${dateformat(published, "mmmm dS, yyyy, h:MM TT")}`
+        const credits = `Source: ${dataItem.source} from newsapi.org, ${dateformat(published, "mmmm dS, yyyy, h:MM TT")}`;
         ctx.fillStyle = textColor; 
         ctx.font = creditFont;
         ctx.fillText(credits, CreditOffsetX, imageHeight - CreditOffsetY);
@@ -161,14 +161,14 @@ export class NewsImage {
             expires: expires.toUTCString(),
             imageType: "jpg",
             imageData: jpegImg
-        }
+        };
     }
 
     private splitLine(inStr: string, maxLineLength: number, maxLines: number) {
         const list: string[] = [];
 
         if (maxLines < 1 || maxLines > 10) {
-            this.logger.error(`splitLine: maxLines too large (${maxLines})`)
+            this.logger.error(`splitLine: maxLines too large (${maxLines})`);
             return list;
         }
 
@@ -180,7 +180,7 @@ export class NewsImage {
             }
 
             breakIndex = maxLineLength - 1;
-            while (breakIndex > 0 && (inStr.charAt(breakIndex) !== ' ')) {
+            while (breakIndex > 0 && (inStr.charAt(breakIndex) !== " ")) {
                 breakIndex--;
             }
 

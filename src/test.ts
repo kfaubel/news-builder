@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import * as fs from 'fs';
-import path from 'path';
-import { fileURLToPath, URL } from 'url';
+import * as fs from "fs";
+import path from "path";
+import { fileURLToPath, URL } from "url";
 import { Logger } from "./Logger.js";
-import { NewsData, NewsItem } from './NewsData.js';
-import { NewsImage, ImageResult } from './NewsImage.js';
+import { NewsData, NewsItem } from "./NewsData.js";
+import { NewsImage, ImageResult } from "./NewsImage.js";
 
 // Use meow v9 for now.  V10 does not work without project level changes to handle "importMeta import.meta"
-import meow = require('meow');
+import meow = require("meow");
 
 const logger = new Logger("news-builder", "info");
 
@@ -30,24 +30,24 @@ Examples:
 //    importMeta: import.meta, // needed for meow v10, expect to battle dragons
     flags: {
         count: {
-            type: 'number',
+            type: "number",
             default: 10,       
-            alias: 'c'         
+            alias: "c"         
         },
         source: {
-            type: 'string',
-            alias: 's',
+            type: "string",
+            alias: "s",
             default: "msnbc",
             isRequired: true
         },
         key: {
-            type: 'string',
-            alias: 'k',
+            type: "string",
+            alias: "k",
             default: "test",
             isRequired: true
         },
         debug: {
-            alias: 'd',
+            alias: "d",
             default: false
         },
     },
@@ -66,20 +66,20 @@ async function main() {
 
     if(!fs.existsSync(dirname)) {
         logger.info(`Could not determine __dirname ${dirname}`);
-        logger.error(`Exiting with errors: 98`)
+        logger.error("Exiting with errors: 98");
         return (98);
     }
 
     const imageDir = path.join(dirname, "..", cli.input[0]);
     // ?? imageDir = path.join(dirname, "..", cli.input[0]).replace(/\\/g, '/').replace("/C:", "");
     
-    logger.verbose('====================================');
+    logger.verbose("====================================");
     logger.verbose(`Source: ${cli.flags.source}`);
     logger.verbose(`Key: ${cli.flags.key}`);
     logger.verbose(`Count: ${cli.flags.count}`);
     logger.verbose(`Target: ${cli.input[0]}`);
     logger.verbose(`Out dir: ${imageDir}`);
-    logger.verbose('====================================');
+    logger.verbose("====================================");
 
     // const exitStatus = await update(imageDir, cli.flags.source, cli.flags.key, cli.flags.count, __dirname);
     try {
@@ -112,7 +112,7 @@ async function main() {
     if (exitStatus === 0) {
         logger.verbose("Done successfully.");
     } else {
-        logger.error(`Exiting with errors: ${exitStatus}`)
+        logger.error(`Exiting with errors: ${exitStatus}`);
     }
     process.exit(exitStatus);
 }
