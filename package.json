@@ -46,6 +46,8 @@
   "files": [
     "build/**/*",
     "fonts/**/*",
+    "index.js",
+    "index.d.ts",
     "msnbc-top-headlines.json"
   ]
 }
