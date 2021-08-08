@@ -1,7 +1,8 @@
 import * as fs from "fs";
 import path from "path";
 import axios from "axios";
-import { Logger } from "./Logger.js";
+import { LoggerInterface } from "./Logger.js";
+import { KacheInterface } from "./Kache.js";
 
 export interface NewsItem {
     title?: string;
@@ -29,12 +30,12 @@ interface AxiosResponse {
 }
 
 export class NewsData {
-    private logger: Logger;
-    private dirname: string;
+    private logger: LoggerInterface;
+    private cache: KacheInterface;
 
-    constructor(logger: Logger, dirname: string) {
+    constructor(logger: LoggerInterface, cache: KacheInterface) {
         this.logger = logger;
-        this.dirname = dirname;
+        this.cache = cache;
     }
 
     private fixString(inStr: string): string {
@@ -47,9 +48,9 @@ export class NewsData {
         return outStr;
     }
 
-    public async getData(source: string, key: string): Promise<Array<NewsItem>> {
+    public async getData(source: string, key: string): Promise<Array<NewsItem> | null> {
         const url = `https://newsapi.org/v2/top-headlines?sources=${source}&apiKey=${key}`;       
-        this.logger.verbose("URL: " + url);
+        this.logger.verbose("NewsData: URL: " + url);
 
         const newsItems: Array<NewsItem> = [];
         
@@ -57,15 +58,27 @@ export class NewsData {
 
         try {
             if (key === "test") {
-                const sampleNewsFile = path.join(this.dirname, "..", "msnbc-top-headlines.json");
+                const sampleNewsFile = path.join(".", "msnbc-top-headlines.json");
                 const sampleBuffer = fs.readFileSync(sampleNewsFile);
                 newsJson = JSON.parse(sampleBuffer.toString());
             } else {
-                const response: AxiosResponse = await axios.get(url, {responseType: "json"});
-                newsJson = response.data;
+                newsJson = this.cache.get(source) as NewsJson;
+                if (newsJson === null) {
+                    this.logger.log(`NewsData: No cache for ${source}.  Fetching new`);
+                    const response: AxiosResponse = await axios.get(url, {responseType: "json"});
+                    newsJson = response.data;
+
+                    if (newsJson !== null) {
+                        const nowMs: number = new Date().getTime() + 60 * 60 * 1000; // one our from now
+                        this.logger.log(`NewsData: Saving newsJson for ${source} to the cache`);
+                        this.cache.set(source, newsJson, nowMs);
+                    }
+                } else {
+                    this.logger.log(`NewsData: Using cached newsJson for ${source}`);
+                }
             }
 
-            this.logger.verbose(`NewsJson: ${JSON.stringify(newsJson, null, 4)}`);
+            //this.logger.verbose(`NewsData: Json from ${source}: ${JSON.stringify(newsJson, null, 4)}`);
              
             const articles: Array<Article> = newsJson.articles;
 
@@ -83,9 +96,11 @@ export class NewsData {
                 // this.logger.info(`Article: ${i} ${newsItems[i].title}`);
             }
         } catch (e) {
-            this.logger.error(`Read article data: ${e}`);
+            this.logger.error(`NewsData: Read article data for source: ${source} - ${e}`);
+            return null;
         }
 
+        this.logger.verbose(`NewsData: newsItems for ${source}: ${JSON.stringify(newsItems, null, 4)}`);
         return newsItems;
     }
 }

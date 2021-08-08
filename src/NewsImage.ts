@@ -5,7 +5,7 @@ import path from "path";
 import dateformat from "dateformat";
 import * as pure from "pureimage";
 import { Stream } from "stream";
-import { Logger } from "./Logger.js";
+import { LoggerInterface } from "./Logger.js";
 import { NewsItem } from "./NewsData.js";
 
 export interface ImageResult {
@@ -21,12 +21,10 @@ interface AxiosResponse {
 }
 
 export class NewsImage {
-    private logger: Logger;
-    private dirname: string;
+    private logger: LoggerInterface;
 
-    constructor(logger: Logger, dirname: string) {
+    constructor(logger: LoggerInterface) {
         this.logger = logger;
-        this.dirname = dirname;
     }
 
     public async getImage(dataItem: NewsItem): Promise<ImageResult> {
@@ -60,10 +58,11 @@ export class NewsImage {
         const titleFont =  "72pt 'OpenSans-Bold'";
         const creditFont = "24pt 'OpenSans-Bold'";
 
-        const fntBold     = pure.registerFont(path.join(this.dirname, "..", "fonts", "OpenSans-Bold.ttf"),"OpenSans-Bold");
-        const fntRegular  = pure.registerFont(path.join(this.dirname, "..", "fonts", "OpenSans-Regular.ttf"),"OpenSans-Regular");
-        const fntRegular2 = pure.registerFont(path.join(this.dirname, "..", "fonts", "alata-regular.ttf"),"alata-regular");
-        
+        // When used as an npm package, fonts need to be installed in the top level of the main project
+        const fntBold     = pure.registerFont(path.join(".", "fonts", "OpenSans-Bold.ttf"),"OpenSans-Bold");
+        const fntRegular  = pure.registerFont(path.join(".", "fonts", "OpenSans-Regular.ttf"),"OpenSans-Regular");
+        const fntRegular2 = pure.registerFont(path.join(".", "fonts", "alata-regular.ttf"),"alata-regular");
+
         fntBold.loadSync();
         fntRegular.loadSync();
         fntRegular2.loadSync();
@@ -73,7 +72,7 @@ export class NewsImage {
 
         try {
             const pictureUrl = (dataItem.pictureUrl as string);
-            this.logger.verbose(`PictureUrl: ${pictureUrl}`);
+            //this.logger.verbose(`NewsImage: PictureUrl: ${pictureUrl}`);
             const response: AxiosResponse = await axios.get(pictureUrl, {responseType: "stream"} );
             let picture: jpeg.BufferRet | null = null;
             // Get the last filename part of the url (e.g.: "content-00123.jpg")
@@ -92,7 +91,7 @@ export class NewsImage {
             try {
                 picture = await pure.decodeJPEGFromStream(response.data);
                 if (expectedPictureFormat !== "jpg") {
-                    //this.logger.warn(`NewsImage: ${dataItem.pictureUrl} was a jpg, expected: ${expectedPictureFormat}`);
+                    this.logger.verbose(`NewsImage: ${dataItem.pictureUrl} was a jpg, expected: ${expectedPictureFormat}`);
                 }
             } catch (e) {
                 // guess not
@@ -108,15 +107,15 @@ export class NewsImage {
                         //this.logger.warn(`NewsImage: ${dataItem.pictureUrl} was a png, expected: ${expectedPictureFormat}`);
                     }
                 } catch (e) {
-                    // guess not
+                    // guess not.  This is more common that I expected
                     if (expectedPictureFormat === "png") {
-                        this.logger.warn(`NewsImage: ${dataItem.pictureUrl} was not a png as expectd`);
+                        this.logger.verbose(`NewsImage: ${dataItem.pictureUrl} was not a png as expectd`);
                     } 
                 }
             }
 
             if (picture === null) {
-                this.logger.warn(`Picture" ${leaf} was not a jpg or png, likely a "webp"`);
+                this.logger.warn(`NewsImage: Picture" ${leaf} was not a jpg or png, likely a "webp"`);
             }
 
             if (picture !== null) {
@@ -127,7 +126,7 @@ export class NewsImage {
                 );
             }
         } catch (e) {
-            this.logger.warn("Failed to read picture: " + e);
+            this.logger.warn("NewsImage: Failed to read picture: " + e);
             this.logger.warn("Stack: " + e.stack);
         }
 
@@ -168,7 +167,7 @@ export class NewsImage {
         const list: string[] = [];
 
         if (maxLines < 1 || maxLines > 10) {
-            this.logger.error(`splitLine: maxLines too large (${maxLines})`);
+            this.logger.error(`NewsImage: splitLine: maxLines too large (${maxLines})`);
             return list;
         }
 
