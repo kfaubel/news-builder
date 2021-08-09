@@ -52,11 +52,20 @@ export class NewsData {
         const url = `https://newsapi.org/v2/top-headlines?sources=${source}&apiKey=${key}`;       
         this.logger.verbose("NewsData: URL: " + url);
 
-        const newsItems: Array<NewsItem> = [];
+        let newsItems: Array<NewsItem>;
         
         let newsJson: NewsJson;
 
+        const cacheName: string = (key === "test") ? `${source}-test` : source;
+
         try {
+            newsItems = this.cache.get(cacheName) as Array<NewsItem>;
+            if (newsItems !== null) {
+                this.logger.log(`NewsData: found newsItems in the cache: ${cacheName}`);
+                return newsItems;
+            }
+
+            newsItems = [];
             if (key === "test") {
                 const sampleNewsFile = path.join(".", "msnbc-top-headlines.json");
                 const sampleBuffer = fs.readFileSync(sampleNewsFile);
@@ -67,12 +76,6 @@ export class NewsData {
                     this.logger.log(`NewsData: No cache for ${source}.  Fetching new`);
                     const response: AxiosResponse = await axios.get(url, {responseType: "json"});
                     newsJson = response.data;
-
-                    if (newsJson !== null) {
-                        const nowMs: number = new Date().getTime() + 60 * 60 * 1000; // one our from now
-                        this.logger.log(`NewsData: Saving newsJson for ${source} to the cache`);
-                        this.cache.set(source, newsJson, nowMs);
-                    }
                 } else {
                     this.logger.log(`NewsData: Using cached newsJson for ${source}`);
                 }
@@ -95,12 +98,17 @@ export class NewsData {
                 // this.logger.info(`Article: ${0} ${newsItems[0].title}`);
                 // this.logger.info(`Article: ${i} ${newsItems[i].title}`);
             }
+
+            const nowMs: number = new Date().getTime() + 60 * 60 * 1000; // one our from now
+            this.logger.log(`NewsData: Saving newsItems for ${cacheName} to the cache`);
+            this.cache.set(cacheName, newsItems, nowMs);
+            
         } catch (e) {
             this.logger.error(`NewsData: Read article data for source: ${source} - ${e}`);
             return null;
         }
 
-        this.logger.verbose(`NewsData: newsItems for ${source}: ${JSON.stringify(newsItems, null, 4)}`);
+        //this.logger.verbose(`NewsData: newsItems for ${source}: ${JSON.stringify(newsItems, null, 4)}`);
         return newsItems;
     }
 }
