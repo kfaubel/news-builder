@@ -3,4 +3,4 @@
 // Use app.ts for local testing and to build a stand alone solution
 
 const NewsBuilder  = require("./build/NewsBuilder");
-module.exports = { NewsBuilder };
+module.exports = NewsBuilder;

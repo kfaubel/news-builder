@@ -24,7 +24,6 @@ export class NewsBuilder {
     // I would prefer to use the interface commented out above but it does not work direclty.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public async CreateImages(params: any): Promise<boolean>{
-        let exitStatus = true;
         try {
 
             if (params.newsSource === undefined) {
@@ -41,9 +40,9 @@ export class NewsBuilder {
                 this.logger.error("CreateImages: param: count is undefined (using: 10)");
             }
 
-            let count: number = 10;
+            let count = 10;
             if (params.count < 1 || params.count > 20) {
-                this.logger.log(`CreateImage: params.count must be 1-20.  Changing ${params.count} to 10`)
+                this.logger.log(`CreateImage: params.count must be 1-20.  Changing ${params.count} to 10`);
             } else {
                 count = params.count;
             }
@@ -72,7 +71,7 @@ export class NewsBuilder {
                         this.logger.info(`Writing: ${filename}`);
                         this.writer.saveFile(filename, item.imageData.data);
                     } else {
-                        this.logger.warn(`CreateImages: Unable to render image for: ${params.source}[${i}]`)
+                        this.logger.warn(`CreateImages: Unable to render image for: ${params.source}[${i}]`);
                     }
                 } else {
                     this.logger.warn(`Unable to get data for ${params.source}: ${i+1}`);
