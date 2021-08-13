@@ -3,6 +3,7 @@
   "version": "1.0.8",
   "description": "Create images with news from newsapi.org sources",
   "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "start": "npm run build && npm run command",
     "test": "npm run build && npm run command",
