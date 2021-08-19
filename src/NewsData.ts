@@ -64,16 +64,18 @@ export class NewsData {
                 this.logger.log(`NewsData: found newsItems in the cache: ${cacheName}`);
                 return newsItems;
             }
+            this.logger.info(`NewsData: ${source} was not in the cache`);
 
             newsItems = [];
             if (key === "test") {
+                this.logger.info("NewsData: We are going to use test data");
                 const sampleNewsFile = path.join(".", "msnbc-top-headlines.json");
                 const sampleBuffer = fs.readFileSync(sampleNewsFile);
                 newsJson = JSON.parse(sampleBuffer.toString());
             } else {
                 this.logger.log(`NewsData: No cache for ${source}.  Fetching new`);
                 const response: AxiosResponse = await axios.get(url, {responseType: "json", timeout: 2000});
-                this.logger.verbose(`NewsData: GET for ${source} returned: ${response.statusText}`);
+                this.logger.log(`NewsData: GET for ${source} returned: ${response.statusText}`);
                 newsJson = response.data;
             }
 
