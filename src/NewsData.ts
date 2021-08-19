@@ -71,15 +71,10 @@ export class NewsData {
                 const sampleBuffer = fs.readFileSync(sampleNewsFile);
                 newsJson = JSON.parse(sampleBuffer.toString());
             } else {
-                newsJson = this.cache.get(source) as NewsJson;
-                if (newsJson === null) {
-                    this.logger.log(`NewsData: No cache for ${source}.  Fetching new`);
-                    const response: AxiosResponse = await axios.get(url, {responseType: "json", timeout: 2000});
-                    this.logger.verbose(`NewsData: GET for ${source} returned: ${response.statusText}`);
-                    newsJson = response.data;
-                } else {
-                    this.logger.log(`NewsData: Using cached newsJson for ${source}`);
-                }
+                this.logger.log(`NewsData: No cache for ${source}.  Fetching new`);
+                const response: AxiosResponse = await axios.get(url, {responseType: "json", timeout: 2000});
+                this.logger.verbose(`NewsData: GET for ${source} returned: ${response.statusText}`);
+                newsJson = response.data;
             }
 
             if (newsJson.articles === undefined) {
