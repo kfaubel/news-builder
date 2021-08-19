@@ -74,14 +74,20 @@ export class NewsData {
                 newsJson = this.cache.get(source) as NewsJson;
                 if (newsJson === null) {
                     this.logger.log(`NewsData: No cache for ${source}.  Fetching new`);
-                    const response: AxiosResponse = await axios.get(url, {responseType: "json"});
+                    const response: AxiosResponse = await axios.get(url, {responseType: "json", timeout: 2000});
+                    this.logger.verbose(`NewsData: GET for ${source} returned: ${response.statusText}`);
                     newsJson = response.data;
                 } else {
                     this.logger.log(`NewsData: Using cached newsJson for ${source}`);
                 }
             }
 
-            //this.logger.verbose(`NewsData: Json from ${source}: ${JSON.stringify(newsJson, null, 4)}`);
+            if (newsJson.articles === undefined) {
+                this.logger.error(`No articles for source ${source}`);
+                return null;
+            }
+
+            this.logger.verbose(`NewsData: Articles for ${source}: ${newsJson.articles.length}`);
              
             const articles: Array<Article> = newsJson.articles;
 
@@ -99,7 +105,7 @@ export class NewsData {
                 // this.logger.info(`Article: ${i} ${newsItems[i].title}`);
             }
 
-            const nowMs: number = new Date().getTime() + 60 * 60 * 1000; // one our from now
+            const nowMs: number = new Date().getTime() + 60 * 60 * 1000; // one hour from now
             this.logger.log(`NewsData: Saving newsItems for ${cacheName} to the cache`);
             this.cache.set(cacheName, newsItems, nowMs);
             

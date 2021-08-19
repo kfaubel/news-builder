@@ -74,7 +74,7 @@ export class NewsBuilder {
                         this.logger.warn(`CreateImages: Unable to render image for: ${params.source}[${i}]`);
                     }
                 } else {
-                    this.logger.warn(`Unable to get data for ${params.source}: ${i+1}`);
+                    this.logger.warn(`CreateImages: Unable to get data for ${params.source}: ${i+1}`);
                 }
             }
         } catch (e) {
