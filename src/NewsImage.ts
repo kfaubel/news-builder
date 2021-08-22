@@ -31,26 +31,23 @@ export class NewsImage {
         const title = `${dataItem.title}`;
         this.logger.verbose(`getImage: Title: ${title}`);
 
-        const imageHeight = 1080; 
-        const imageWidth = 1920; 
+        const imageHeight     = 1080; 
+        const imageWidth      = 1920; 
 
         const backgroundColor = "rgb(250, 250, 250)";
-        const textColor = "rgb(50, 5, 250)";
+        const textColor       = "rgb(50, 5, 250)";
 
-        const TitleOffsetX = 60;
-        const TitleOffsetY = 100;
-        const TitleSpacingY = 80; // Offset to additiona lines
+        const TitleOffsetX    = 60;
+        const TitleOffsetY    = 100;
+        const TitleSpacingY   = 80; // Offset to additiona lines
+        const TitleWidth      = imageWidth - (TitleOffsetX + 100);
 
-        const CreditOffsetX = 60;
-        const CreditOffsetY = 20; // up from the bottom
+        const CreditOffsetX   = 60;
+        const CreditOffsetY   = 20; // up from the bottom
 
-        const DetailOffsetX = 60;
-        const DetailOffsetY = 260;
-
-        const PictureX = 350;
-        const PictureY = 350;
-        const PictureWidth = 400;
-        const PictureHeight = 650;
+        const PictureX        = 350;
+        const PictureY        = 350;
+        const PictureHeight   = 650;
 
         const img = pure.make(imageWidth, imageHeight);
         const ctx = img.getContext("2d");
@@ -134,7 +131,7 @@ export class NewsImage {
         ctx.fillStyle = textColor; 
         ctx.font = titleFont;
 
-        const titleLines: string[] = this.splitLine(title, 48, 2);       
+        const titleLines: string[] = this.splitLine(title, ctx, TitleWidth, 2);       
 
         for (let titleLine = 0; titleLine < titleLines.length; titleLine++) {            
             ctx.fillText(titleLines[titleLine], TitleOffsetX, TitleOffsetY + (titleLine * TitleSpacingY));
@@ -163,7 +160,43 @@ export class NewsImage {
         };
     }
 
-    private splitLine(inStr: string, maxLineLength: number, maxLines: number) {
+    private splitLine(inStr: string, ctx: any, maxPixelLength: number, maxLines: number) {
+        const list: string[] = [];
+
+        if (maxLines < 1 || maxLines > 10) {
+            this.logger.error(`splitLine: maxLines too large (${maxLines})`);
+            return list;
+        }
+        
+        while (inStr.length > 0) {
+            let breakIndex: number;
+            if (ctx.measureText(inStr).width <= maxPixelLength) {
+                list.push(inStr);
+                return list;
+            }
+
+            breakIndex = inStr.length - 1;
+            let activeLine = "";
+            while (breakIndex > 0) {
+                if (inStr.charAt(breakIndex) === " ") {
+                    activeLine = inStr.substring(0, breakIndex);
+                    if (ctx.measureText(activeLine).width <= maxPixelLength) {
+                        break;
+                    } 
+                }
+                breakIndex--;
+            } 
+            
+            list.push(inStr.substring(0, breakIndex));
+            inStr = inStr.substring(breakIndex + 1);
+
+            if (list.length >= maxLines)
+                break;
+        }
+        return list;
+    }
+
+    private splitLineOLD(inStr: string, maxLineLength: number, maxLines: number) {
         const list: string[] = [];
 
         if (maxLines < 1 || maxLines > 10) {

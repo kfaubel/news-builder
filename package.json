@@ -7,7 +7,7 @@
   "scripts": {
     "start": "npm run build && npm run command",
     "test": "npm run build && npm run command",
-    "command": "node app.js --source msnbc --count 10 --key test outdir1",
+    "command": "node app.js --source usa-today --count 10 --key c1c31c1109184803b822d9da1ddba62d outdir1",
     "build": "npm run clean && tsc",
     "clean": "shx rm -rf build/*",
     "prepare": "npm run build",

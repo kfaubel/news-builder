@@ -61,11 +61,10 @@ export class NewsData {
         try {
             newsItems = this.cache.get(cacheName) as Array<NewsItem>;
             if (newsItems !== null) {
-                this.logger.log(`NewsData: found newsItems in the cache: ${cacheName}`);
+                this.logger.verbose(`NewsData: found newsItems in the cache: ${cacheName}`);
                 return newsItems;
             }
-            this.logger.info(`NewsData: ${source} was not in the cache`);
-
+            
             newsItems = [];
             if (key === "test") {
                 this.logger.info("NewsData: We are going to use test data");
@@ -73,8 +72,8 @@ export class NewsData {
                 const sampleBuffer = fs.readFileSync(sampleNewsFile);
                 newsJson = JSON.parse(sampleBuffer.toString());
             } else {
-                this.logger.log(`NewsData: No cache for ${source}.  Fetching new`);
-                const response: AxiosResponse = await axios.get(url, {responseType: "json", timeout: 2000});
+                this.logger.verbose(`NewsData: No cache for ${source}.  Fetching new`);
+                const response: AxiosResponse = await axios.get(url, {responseType: "json", timeout: 10000});
                 this.logger.log(`NewsData: GET for ${source} returned: ${response.statusText}`);
                 newsJson = response.data;
             }
@@ -83,8 +82,6 @@ export class NewsData {
                 this.logger.error(`No articles for source ${source}`);
                 return null;
             }
-
-            this.logger.verbose(`NewsData: Articles for ${source}: ${newsJson.articles.length}`);
              
             const articles: Array<Article> = newsJson.articles;
 
