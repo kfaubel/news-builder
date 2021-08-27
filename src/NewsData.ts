@@ -82,6 +82,8 @@ export class NewsData {
                 this.logger.error(`No articles for source ${source}`);
                 return null;
             }
+
+            // this.logger.log(`${JSON.stringify(newsJson, null, 4)}`);
              
             const articles: Array<Article> = newsJson.articles;
 

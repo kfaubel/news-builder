@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import axios from "axios"; 
 import jpeg from "jpeg-js";
@@ -27,6 +28,35 @@ export class NewsImage {
         this.logger = logger;
     }
 
+    // This optimized fillRect was derived from the pureimage source code: https://github.com/joshmarinacci/node-pureimage/tree/master/src
+    // To fill a 1920x1080 image on a core i5, this saves about 1.5 seconds
+    // img        - image - it has 3 properties height, width and data
+    // x, y       - position of the rect
+    // w, h       - size of the rect
+    // rgb        - must be a string in this form "#112233"
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private myFillRect(img: any, x: number, y: number, w: number, h: number, rgb: string) {
+        const colorValue = parseInt(rgb.substring(1), 16);
+
+        // the shift operator forces js to perform the internal ToUint32 (see ecmascript spec 9.6)
+        //colorValue = colorValue >>> 0;
+        const r = (colorValue >>> 16) & 0xFF;
+        const g = (colorValue >>> 8)  & 0xFF;  
+        const b = (colorValue)        & 0xFF;
+        const a = 0xFF;
+
+        for(let i = y; i < y + h; i++) {                
+            for(let j = x; j < x + w; j++) {   
+                const index = (i * img.width + j) * 4;   
+                
+                img.data[index + 0] = r;
+                img.data[index + 1] = g;     
+                img.data[index + 2] = b;     
+                img.data[index + 3] = a; 
+            }
+        }
+    }
+
     public async getImage(dataItem: NewsItem): Promise<ImageResult> {
         const title = `${dataItem.title}`;
         this.logger.verbose(`getImage: Title: ${title}`);
@@ -34,7 +64,7 @@ export class NewsImage {
         const imageHeight     = 1080; 
         const imageWidth      = 1920; 
 
-        const backgroundColor = "rgb(250, 250, 250)";
+        const backgroundColor = "#F0F0F0";
         const textColor       = "rgb(50, 5, 250)";
 
         const TitleOffsetX    = 60;
@@ -52,7 +82,8 @@ export class NewsImage {
         const img = pure.make(imageWidth, imageHeight);
         const ctx = img.getContext("2d");
 
-        const titleFont =  "72pt 'OpenSans-Bold'";
+        const titleFont  = "72pt 'OpenSans-Bold'";
+        const mesgFont   = "48pt 'OpenSans-Bold'";
         const creditFont = "24pt 'OpenSans-Bold'";
 
         // When used as an npm package, fonts need to be installed in the top level of the main project
@@ -65,54 +96,26 @@ export class NewsImage {
         fntRegular2.loadSync();
 
         ctx.fillStyle = backgroundColor; 
-        ctx.fillRect(0,0,imageWidth, imageHeight);
+        //ctx.fillRect(0,0,imageWidth, imageHeight);
+        this.myFillRect(img, 0, 0, imageWidth, imageHeight, backgroundColor);
 
         try {
-            const pictureUrl = (dataItem.pictureUrl as string);
-            //this.logger.verbose(`NewsImage: PictureUrl: ${pictureUrl}`);
-            const response: AxiosResponse = await axios.get(pictureUrl, {responseType: "stream"} );
             let picture: jpeg.BufferRet | null = null;
-            // Get the last filename part of the url (e.g.: "content-00123.jpg")
-            
-            const leaf: string = pictureUrl.substring(pictureUrl.lastIndexOf("/")+1, pictureUrl.length) || "";
-            let expectedPictureFormat = "???";
 
-            if (pictureUrl.toUpperCase().endsWith("JPG")) {
-                expectedPictureFormat = "jpg";
-            } else if (pictureUrl.toUpperCase().endsWith("PNG")) {
-                expectedPictureFormat = "png";
-            } else {
-                expectedPictureFormat = leaf.substring(leaf.lastIndexOf(".")+1, leaf.length) || "???";
-            }
-
-            try {
-                picture = await pure.decodeJPEGFromStream(response.data);
-                if (expectedPictureFormat !== "jpg") {
-                    this.logger.verbose(`NewsImage: ${dataItem.pictureUrl} was a jpg, expected: ${expectedPictureFormat}`);
-                }
-            } catch (e) {
-                // guess not
-                if (expectedPictureFormat === "jpg") {
-                    this.logger.warn(`NewsImage: ${dataItem.pictureUrl} was not a jpg as expectd`);
-                } 
-            }
-
-            if (picture === null) {
-                try {
+            if (dataItem.pictureUrl !== null) {
+                const pictureUrl = (dataItem.pictureUrl as string);
+                this.logger.verbose(`NewsImage: PictureUrl: ${pictureUrl}`);
+                const response: AxiosResponse = await axios.get(pictureUrl, {responseType: "stream"} );
+                
+                
+                // URL may have parameters after the suffix (JPG?crop=5010,2819,x0,y274&width=3200&height=1801&format=pjpg&auto=webp)
+                if (pictureUrl.toUpperCase().indexOf("JPG") !== -1) {
+                    picture = await pure.decodeJPEGFromStream(response.data);
+                } else if (pictureUrl.toUpperCase().indexOf("PNG") !== -1) {
                     picture = await pure.decodePNGFromStream(response.data);
-                    if (expectedPictureFormat !== "png") {
-                        //this.logger.warn(`NewsImage: ${dataItem.pictureUrl} was a png, expected: ${expectedPictureFormat}`);
-                    }
-                } catch (e) {
-                    // guess not.  This is more common that I expected
-                    if (expectedPictureFormat === "png") {
-                        this.logger.verbose(`NewsImage: ${dataItem.pictureUrl} was not a png as expectd`);
-                    } 
+                } else {
+                    this.logger.warn(`NewsImage: Unknown picture format in : ${pictureUrl}`);
                 }
-            }
-
-            if (picture === null) {
-                this.logger.warn(`NewsImage: Picture" ${leaf} was not a jpg or png, likely a "webp"`);
             }
 
             if (picture !== null) {
@@ -121,9 +124,18 @@ export class NewsImage {
                     0, 0, picture.width, picture.height,             // source dimensions
                     PictureX, PictureY, scaledWidth, PictureHeight  // destination dimensions
                 );
+            } else {
+                ctx.fillStyle = textColor; 
+                ctx.font = mesgFont;
+                const mesg = "<No image>";
+                const PictureWidth = PictureHeight * 1.3;
+                const mesgWidth = ctx.measureText(mesg).width;
+                
+                this.myFillRect(img, PictureX, PictureY, PictureWidth, PictureHeight, "#D0D0D0");
+                ctx.fillText(mesg, PictureX + (PictureWidth/2) - mesgWidth/2, PictureY + PictureHeight/2);
             }
         } catch (e) {
-            this.logger.warn("NewsImage: Failed to read picture: " + e);
+            this.logger.warn(`NewsImage: Exception: ${e}, Picture: ${dataItem.pictureUrl as string}`);
             this.logger.warn("Stack: " + e.stack);
         }
 
