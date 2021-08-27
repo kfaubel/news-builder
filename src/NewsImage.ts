@@ -104,16 +104,23 @@ export class NewsImage {
             if (dataItem.pictureUrl !== null) {
                 const pictureUrl = (dataItem.pictureUrl as string);
                 this.logger.verbose(`NewsImage: PictureUrl: ${pictureUrl}`);
-                const response: AxiosResponse = await axios.get(pictureUrl, {responseType: "stream"} );
                 
-                
-                // URL may have parameters after the suffix (JPG?crop=5010,2819,x0,y274&width=3200&height=1801&format=pjpg&auto=webp)
-                if (pictureUrl.toUpperCase().indexOf("JPG") !== -1) {
+                // first try to download a jpg
+                try {
+                    const response: AxiosResponse = await axios.get(pictureUrl, {responseType: "stream"} );
                     picture = await pure.decodeJPEGFromStream(response.data);
-                } else if (pictureUrl.toUpperCase().indexOf("PNG") !== -1) {
-                    picture = await pure.decodePNGFromStream(response.data);
-                } else {
-                    this.logger.warn(`NewsImage: Unknown picture format in : ${pictureUrl}`);
+                } catch (e) {
+                    picture = null;
+                }
+
+                // If that did not work, try a PNG
+                if (picture === null) {
+                    try {
+                        const response: AxiosResponse = await axios.get(pictureUrl, {responseType: "stream"} );
+                        picture = await pure.decodePNGFromStream(response.data);
+                    } catch (e) {
+                        picture = null;
+                    }
                 }
             }
 
@@ -135,7 +142,6 @@ export class NewsImage {
             }
         } catch (e) {
             this.logger.warn(`NewsImage: Exception: ${e}, Picture: ${dataItem.pictureUrl as string}`);
-            this.logger.warn("Stack: " + e.stack);
         }
 
         // Draw the title
