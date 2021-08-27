@@ -10,7 +10,6 @@ import { LoggerInterface } from "./Logger.js";
 import { NewsItem } from "./NewsData.js";
 
 export interface ImageResult {
-    expires: string;
     imageType: string;
     imageData: jpeg.BufferRet;
 }
@@ -162,11 +161,7 @@ export class NewsImage {
         // How long is this image good for
         const goodForMins = 60;
 
-        const expires = new Date();
-        expires.setMinutes(expires.getMinutes() + goodForMins);
-
         return {
-            expires: expires.toUTCString(),
             imageType: "jpg",
             imageData: jpegImg
         };
