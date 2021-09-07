@@ -41,10 +41,13 @@ export class NewsData {
     private fixString(inStr: string): string {
         let outStr = inStr;
         outStr = outStr.replace(/&amp;/g, "&");
+        outStr = outStr.replace(/&lt;/g, "<");
+        outStr = outStr.replace(/&gt;/g, ">");
         outStr = outStr.replace(/<b>/g, "");
         outStr = outStr.replace("</b>", "");    // TODO fix - (/</b>/g, "")
         outStr = outStr.replace(/&#39;/g, "'");
-
+        outStr = outStr.replace(/&apos;/g, "'");
+        
         return outStr;
     }
 
