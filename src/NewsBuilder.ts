@@ -66,8 +66,10 @@ export class NewsBuilder {
                 if (data[i] !== null && data[i].title !== null) {
                     const item: ImageResult = await newsImage.getImage(data[i]);
                     if (item !== undefined) {
+                        let imageNumberStr = `00${i+1}`; // 01 .. 10
+                        imageNumberStr = imageNumberStr.substr(-2, 2); // take the last 2 digits
         
-                        const filename = `${params.newsSource}-${i+1}.${item.imageType}`;
+                        const filename = `${params.newsSource}-${imageNumberStr}.${item.imageType}`;
                         this.logger.info(`Writing: ${filename}`);
                         this.writer.saveFile(filename, item.imageData.data);
                     } else {
