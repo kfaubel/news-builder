@@ -83,7 +83,7 @@ export class NewsImage {
 
         const titleFont  = "72pt 'OpenSans-Bold'";
         const mesgFont   = "48pt 'OpenSans-Bold'";
-        const creditFont = "24pt 'OpenSans-Bold'";
+        const creditFont = "32pt 'OpenSans-Bold'";
 
         // When used as an npm package, fonts need to be installed in the top level of the main project
         const fntBold     = pure.registerFont(path.join(".", "fonts", "OpenSans-Bold.ttf"),"OpenSans-Bold");
@@ -133,7 +133,7 @@ export class NewsImage {
             } else {
                 ctx.fillStyle = textColor; 
                 ctx.font = mesgFont;
-                const mesg = "<No image>";
+                const mesg = (dataItem.source !== undefined) ? dataItem.source : "<No image>";
                 const PictureWidth = PictureHeight * 1.3;
                 const mesgWidth = ctx.measureText(mesg).width;
                 

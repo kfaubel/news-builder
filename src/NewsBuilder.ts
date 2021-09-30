@@ -81,7 +81,7 @@ export class NewsBuilder {
             }
         } catch (e) {
             this.logger.error(`CreateImages: Exception: ${e}`);
-            this.logger.error(`CreateImages: Exception: ${e.stack}`);
+            this.logger.error(`CreateImages: Exception: ${(e as Error).stack}`);
             return false;
         }
             
