@@ -1,6 +1,6 @@
 {
   "name": "news-builder",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "Create images with news from newsapi.org sources",
   "main": "index.js",
   "types": "index.d.ts",
