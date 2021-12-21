@@ -54,8 +54,7 @@ export class NewsData {
     }
 
     public async getData(source: string, key: string): Promise<Array<NewsItem> | null> {
-        const url = `https://newsapi.org/v2/top-headlines?sources=${source}&apiKey=${key}`;       
-        this.logger.verbose("NewsData: URL: " + url);
+        const url = `https://newsapi.org/v2/top-headlines?sources=${source}&apiKey=${key}`; 
 
         let newsItems: Array<NewsItem>;
         
@@ -66,20 +65,19 @@ export class NewsData {
         try {
             newsItems = this.cache.get(cacheName) as Array<NewsItem>;
             if (newsItems !== null) {
-                this.logger.verbose(`NewsData: found newsItems in the cache: ${cacheName}`);
                 return newsItems;
             }
             
             newsItems = [];
             if (key === "test") {
-                this.logger.info("NewsData: We are going to use test data");
+                this.logger.info("NewsData: We are going to use test data (msnbc)");
                 const sampleNewsFile = path.join(".", "msnbc-top-headlines.json");
                 const sampleBuffer = fs.readFileSync(sampleNewsFile);
                 newsJson = JSON.parse(sampleBuffer.toString());
             } else {
-                this.logger.verbose(`NewsData: No cache for ${source}.  Fetching new`);
+                this.logger.info(`NewsData: ${source} - Fetching: ${url}`);
                 const response: AxiosResponse = await axios.get(url, {responseType: "json", timeout: 10000});
-                this.logger.log(`NewsData: GET for ${source} returned: ${response.statusText}`);
+                //this.logger.log(`NewsData: GET for ${source} returned: ${response.statusText}`);
                 newsJson = response.data;
             }
 
@@ -87,8 +85,6 @@ export class NewsData {
                 this.logger.error(`No articles for source ${source}`);
                 return null;
             }
-
-            // this.logger.log(`${JSON.stringify(newsJson, null, 4)}`);
              
             const articles: Array<Article> = newsJson.articles;
 
@@ -101,21 +97,21 @@ export class NewsData {
                 newsItem.source = source;
 
                 newsItems[i] = newsItem;
-
-                // this.logger.info(`Article: ${0} ${newsItems[0].title}`);
-                // this.logger.info(`Article: ${i} ${newsItems[i].title}`);
             }
 
             const nowMs: number = new Date().getTime() + 60 * 60 * 1000; // one hour from now
-            this.logger.log(`NewsData: Saving newsItems for ${cacheName} to the cache`);
             this.cache.set(cacheName, newsItems, nowMs);
             
-        } catch (e) {
-            this.logger.error(`NewsData: Read article data for source: ${source} - ${e}`);
+        } catch(e) {
+            if (e instanceof Error) {
+                this.logger.error(`NewsData: Read article data for source: ${source}: Exception: ${e.message}`);
+                this.logger.error(`${e.stack}`);
+            } else {
+                this.logger.error(`NewsData: Read article data for source: ${source}: Exception: ${e}`);
+            }
             return null;
         }
 
-        //this.logger.verbose(`NewsData: newsItems for ${source}: ${JSON.stringify(newsItems, null, 4)}`);
         return newsItems;
     }
 }

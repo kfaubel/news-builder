@@ -67,7 +67,7 @@ export class NewsBuilder {
                     const item: ImageResult = await newsImage.getImage(data[i]);
                     if (item !== undefined) {
                         let imageNumberStr = `00${i+1}`; // 01 .. 10
-                        imageNumberStr = imageNumberStr.substr(-2, 2); // take the last 2 digits
+                        imageNumberStr = imageNumberStr.substring(imageNumberStr.length - 2); // take the last 2 digits
         
                         const filename = `${params.newsSource}-${imageNumberStr}.${item.imageType}`;
                         this.logger.info(`Writing: ${filename}`);
@@ -79,9 +79,13 @@ export class NewsBuilder {
                     this.logger.warn(`CreateImages: Unable to get data for ${params.source}: ${i+1}`);
                 }
             }
-        } catch (e) {
-            this.logger.error(`CreateImages: Exception: ${e}`);
-            this.logger.error(`CreateImages: Exception: ${(e as Error).stack}`);
+        } catch(e) {
+            if (e instanceof Error) {
+                this.logger.error(`NewsBuilder CreateImages: Exception: ${e.message}`);
+                this.logger.error(`${e.stack}`);
+            } else {
+                this.logger.error(`NewsBuilder CreateImages: Exception: ${e}`);
+            }
             return false;
         }
             
