@@ -148,7 +148,7 @@ export class NewsImage {
         ctx.fillStyle = textColor; 
         ctx.font = titleFont;
 
-        const titleLines: string[] = this.splitLine(title, ctx, TitleWidth, 2);       
+        const titleLines: string[] = this.splitLine(title, ctx, TitleWidth, 3);       
 
         for (let titleLine = 0; titleLine < titleLines.length; titleLine++) {            
             ctx.fillText(titleLines[titleLine], TitleOffsetX, TitleOffsetY + (titleLine * TitleSpacingY));
