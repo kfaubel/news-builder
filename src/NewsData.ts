@@ -40,17 +40,14 @@ export class NewsData {
     }
 
     private fixString(inStr: string): string {
-        
-        let outStr = inStr;
+        let outStr = he.decode(inStr);
         
         outStr = outStr.replace(/<b>/g, "");
         outStr = outStr.replace(/<\/b>/g, "");
-        //outStr = outStr.replace("</b>", "");    // TODO fix - (/</b>/g, "")
         outStr = outStr.replace(/<em>/g, "");
         outStr = outStr.replace(/<\/em>/g, "");
-        //outStr = outStr.replace("</em>", "");
         
-        return he.decode(outStr);
+        return outStr;
     }
 
     public async getData(source: string, key: string): Promise<Array<NewsItem> | null> {
