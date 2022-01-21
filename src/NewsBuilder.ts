@@ -48,7 +48,7 @@ export class NewsBuilder {
             }
 
             const newsData: NewsData = new NewsData(this.logger, this.cache);
-            const newsImage: NewsImage = new NewsImage(this.logger);
+            const newsImage: NewsImage = new NewsImage(this.logger, this.cache);
 
             const data: Array<NewsItem> | null = await newsData.getData(params.newsSource, params.key);
 

@@ -7,24 +7,24 @@ import dateformat from "dateformat";
 import * as pure from "pureimage";
 import { Stream } from "stream";
 import { LoggerInterface } from "./Logger.js";
+import { KacheInterface } from "./Kache.js";
 import { NewsItem } from "./NewsData.js";
+import { ImageLibrary, MyImageType } from "./ImageLibrary.js";
 
 export interface ImageResult {
     imageType: string;
     imageData: jpeg.BufferRet;
 }
 
-interface AxiosResponse {
-    data: Stream;
-    status: number;
-    statusText: string;
-}
-
 export class NewsImage {
     private logger: LoggerInterface;
+    private cache: KacheInterface;
+    private imageLibrary: ImageLibrary;
 
-    constructor(logger: LoggerInterface) {
+    constructor(logger: LoggerInterface, cache: KacheInterface) {
         this.logger = logger;
+        this.cache = cache;
+        this.imageLibrary = new ImageLibrary(logger, cache);
     }
 
     // This optimized fillRect was derived from the pureimage source code: https://github.com/joshmarinacci/node-pureimage/tree/master/src
@@ -99,30 +99,36 @@ export class NewsImage {
         this.myFillRect(img, 0, 0, imageWidth, imageHeight, backgroundColor);
 
         try {
-            let picture: jpeg.BufferRet | null = null;
+            let picture: MyImageType | null = null; //jpeg.BufferRet | null = null;
 
-            if (dataItem.pictureUrl !== null) {
-                const pictureUrl = (dataItem.pictureUrl as string);
-                this.logger.verbose(`NewsImage: PictureUrl: ${pictureUrl}`);
-                
-                // first try to download a jpg
-                try {
-                    const response: AxiosResponse = await axios.get(pictureUrl, {responseType: "stream"} );
-                    picture = await pure.decodeJPEGFromStream(response.data);
-                } catch (e) {
-                    picture = null;
-                }
-
-                // If that did not work, try a PNG
-                if (picture === null) {
-                    try {
-                        const response: AxiosResponse = await axios.get(pictureUrl, {responseType: "stream"} );
-                        picture = await pure.decodePNGFromStream(response.data);
-                    } catch (e) {
-                        picture = null;
-                    }
-                }
+            if (dataItem.pictureUrl !== undefined) {
+                picture = await this.imageLibrary.getImage(dataItem.pictureUrl);
+            } else {
+                picture = null;
             }
+
+            // if (dataItem.pictureUrl !== null) {
+            //     const pictureUrl = (dataItem.pictureUrl as string);
+            //     this.logger.verbose(`NewsImage: PictureUrl: ${pictureUrl}`);
+                
+            //     // first try to download a jpg
+            //     try {
+            //         const response: AxiosResponse = await axios.get(pictureUrl, {responseType: "stream"} );
+            //         picture = await pure.decodeJPEGFromStream(response.data);
+            //     } catch (e) {
+            //         picture = null;
+            //     }
+
+            //     // If that did not work, try a PNG
+            //     if (picture === null) {
+            //         try {
+            //             const response: AxiosResponse = await axios.get(pictureUrl, {responseType: "stream"} );
+            //             picture = await pure.decodePNGFromStream(response.data);
+            //         } catch (e) {
+            //             picture = null;
+            //         }
+            //     }
+            // }
 
             if (picture !== null) {
                 const scaledWidth = (PictureHeight * picture.width) / picture.height;

@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import path from "path";
-import axios from "axios";
+import axios, { AxiosRequestConfig } from "axios";
 import he from "he";
 import { LoggerInterface } from "./Logger.js";
 import { KacheInterface } from "./Kache.js";
@@ -55,7 +55,7 @@ export class NewsData {
 
         let newsItems: Array<NewsItem>;
         
-        let newsJson: NewsJson;
+        let newsJson: NewsJson | null = null;
 
         const cacheName: string = (key === "test") ? `${source}-test` : source;
 
@@ -73,16 +73,29 @@ export class NewsData {
                 newsJson = JSON.parse(sampleBuffer.toString());
             } else {
                 this.logger.info(`NewsData: ${source} - Fetching: ${url}`);
-                const response: AxiosResponse = await axios.get(url, {responseType: "json", timeout: 10000});
-                //this.logger.log(`NewsData: GET for ${source} returned: ${response.statusText}`);
-                newsJson = response.data;
-            }
 
-            if (newsJson.articles === undefined) {
-                this.logger.error(`No articles for source ${source}`);
+                const options: AxiosRequestConfig = {
+                    responseType: "json",
+                    headers: {                        
+                        "Content-Encoding": "gzip"
+                    },
+                    timeout: 2000
+                };
+
+                await axios.get(url, options)
+                    .then((res: AxiosResponse) => {
+                        newsJson = res.data;
+                    })
+                    .catch((error) => {
+                        this.logger.error(`NewsData: No articles (GET Status: ${error.response.status})`);
+                        return null;
+                    });
+            }
+            
+            if (newsJson === null) {
                 return null;
             }
-             
+            
             const articles: Array<Article> = newsJson.articles;
 
             for(let i = 0; i < articles.length; i++) {

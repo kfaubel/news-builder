@@ -7,7 +7,7 @@
   "scripts": {
     "start": "npm run build && npm run command",
     "test": "npm run build && npm run command",
-    "command": "node app.js --source engadget --count 10 --key test outdir1",
+    "command": "node app.js --source engadget --count 10 --key test -d outdir1",
     "build": "npm run clean && tsc",
     "clean": "shx rm -rf build/*",
     "prepare": "npm run build",
@@ -34,7 +34,7 @@
     "eslint": "^7.32.0",
     "np": "^7.6.0",
     "prettier": "^1.19.1",
-    "shx": "^0.3.2",
+    "shx": "^0.3.4",
     "ts-node-dev": "^1.1.8",
     "typescript": "^4.3.5"
   },

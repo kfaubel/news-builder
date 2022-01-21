@@ -12,6 +12,7 @@
             "program": "${workspaceFolder}/app.js",
             "cwd" : "${workspaceFolder}",
             "protocol": "inspector",
+            "args": ["--debug", "--source", "engadget", "--count", "10", "--key", "test", "oudir1"],
             "outFiles": [
                 "${workspaceFolder}/build/**/*.js"
             ]
