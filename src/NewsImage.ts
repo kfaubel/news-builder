@@ -1,20 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import axios from "axios"; 
 import jpeg from "jpeg-js";
 import path from "path";
 import dateformat from "dateformat";
 import * as pure from "pureimage";
-import { Stream } from "stream";
 import { LoggerInterface } from "./Logger.js";
 import { KacheInterface } from "./Kache.js";
 import { NewsItem } from "./NewsData.js";
 import { ImageLibrary, MyImageType } from "./ImageLibrary.js";
-
-export interface ImageResult {
-    imageType: string;
-    imageData: jpeg.BufferRet;
-}
 
 export class NewsImage {
     private logger: LoggerInterface;
@@ -27,18 +20,21 @@ export class NewsImage {
         this.imageLibrary = new ImageLibrary(logger, cache);
     }
 
-    // This optimized fillRect was derived from the pureimage source code: https://github.com/joshmarinacci/node-pureimage/tree/master/src
-    // To fill a 1920x1080 image on a core i5, this saves about 1.5 seconds
-    // img        - image - it has 3 properties height, width and data
-    // x, y       - position of the rect
-    // w, h       - size of the rect
-    // rgb        - must be a string in this form "#112233"
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    /**
+     * Optimized fill routine for pureimage
+     * - See https://github.com/joshmarinacci/node-pureimage/tree/master/src
+     * - To fill a 1920x1080 image on a core i5, this saves about 1.5 seconds
+     * @param img it has 3 properties height, width and data
+     * @param x X position of the rect
+     * @param y Y position of the rect
+     * @param w Width of rect
+     * @param h Height of rect
+     * @param rgb Fill color in "#112233" format
+     */
     private myFillRect(img: any, x: number, y: number, w: number, h: number, rgb: string) {
         const colorValue = parseInt(rgb.substring(1), 16);
 
-        // the shift operator forces js to perform the internal ToUint32 (see ecmascript spec 9.6)
-        //colorValue = colorValue >>> 0;
+        // The shift operator forces js to perform the internal ToUint32 (see ecmascript spec 9.6)
         const r = (colorValue >>> 16) & 0xFF;
         const g = (colorValue >>> 8)  & 0xFF;  
         const b = (colorValue)        & 0xFF;
@@ -56,9 +52,14 @@ export class NewsImage {
         }
     }
 
-    public async getImage(dataItem: NewsItem): Promise<ImageResult> {
+    /**
+     * Builds an image from the details in dataItem
+     * @param dataItem object of type NewsItem defined in NewsData.ts
+     * @returns A buffer with a coded JPG image or null
+     */
+    public async getImage(dataItem: NewsItem): Promise<Buffer | null> {
         const title = `${dataItem.title}`;
-        this.logger.verbose(`getImage: Title: ${title}`);
+        this.logger.verbose(`NewsImage:getImage: Title: ${title}`);
 
         const imageHeight     = 1080; 
         const imageWidth      = 1920; 
@@ -95,45 +96,21 @@ export class NewsImage {
         fntRegular2.loadSync();
 
         ctx.fillStyle = backgroundColor; 
-        //ctx.fillRect(0,0,imageWidth, imageHeight);
         this.myFillRect(img, 0, 0, imageWidth, imageHeight, backgroundColor);
 
         try {
-            let picture: MyImageType | null = null; //jpeg.BufferRet | null = null;
+            let picture: MyImageType | null = null; 
 
             if (dataItem.pictureUrl !== undefined) {
-                picture = await this.imageLibrary.getImage(dataItem.pictureUrl);
+                picture = await this.imageLibrary.getImage(dataItem.pictureUrl, PictureHeight);
             } else {
                 picture = null;
             }
 
-            // if (dataItem.pictureUrl !== null) {
-            //     const pictureUrl = (dataItem.pictureUrl as string);
-            //     this.logger.verbose(`NewsImage: PictureUrl: ${pictureUrl}`);
-                
-            //     // first try to download a jpg
-            //     try {
-            //         const response: AxiosResponse = await axios.get(pictureUrl, {responseType: "stream"} );
-            //         picture = await pure.decodeJPEGFromStream(response.data);
-            //     } catch (e) {
-            //         picture = null;
-            //     }
-
-            //     // If that did not work, try a PNG
-            //     if (picture === null) {
-            //         try {
-            //             const response: AxiosResponse = await axios.get(pictureUrl, {responseType: "stream"} );
-            //             picture = await pure.decodePNGFromStream(response.data);
-            //         } catch (e) {
-            //             picture = null;
-            //         }
-            //     }
-            // }
-
             if (picture !== null) {
                 const scaledWidth = (PictureHeight * picture.width) / picture.height;
-                ctx.drawImage(picture,
-                    0, 0, picture.width, picture.height,             // source dimensions
+                ctx.drawImage(picture as jpeg.BufferRet,
+                    0, 0, picture.width, picture.height,            // source dimensions
                     PictureX, PictureY, scaledWidth, PictureHeight  // destination dimensions
                 );
             } else {
@@ -146,8 +123,9 @@ export class NewsImage {
                 this.myFillRect(img, PictureX, PictureY, PictureWidth, PictureHeight, "#D0D0D0");
                 ctx.fillText(mesg, PictureX + (PictureWidth/2) - mesgWidth/2, PictureY + PictureHeight/2);
             }
-        } catch (e) {
-            this.logger.warn(`NewsImage: Exception: ${e}, Picture: ${dataItem.pictureUrl as string}`);
+        } catch (e: any) {
+            this.logger.warn(`NewsImage: Exception: ${e}, Picture: ${dataItem.pictureUrl as string}`); 
+            this.logger.error(`Stack: ${e.stack}`);
         }
 
         // Draw the title
@@ -169,17 +147,19 @@ export class NewsImage {
 
         // Save the bitmap out to a jpeg image buffer
         const jpegImg: jpeg.BufferRet = jpeg.encode(img, 50);
-        
-        // How long is this image good for
-        const goodForMins = 60;
 
-        return {
-            imageType: "jpg",
-            imageData: jpegImg
-        };
+        return jpegImg.data;
     }
 
-    private splitLine(inStr: string, ctx: any, maxPixelLength: number, maxLines: number) {
+    /**
+     * Split a long string into chunks to display on multiple lines
+     * @param inStr Input string
+     * @param ctx Canvas context used to measure line lenght in pixels
+     * @param maxPixelLength Max length of a line in pixels
+     * @param maxLines Max lines to return, remainder is discarded
+     * @returns A list of strings
+     */
+    private splitLine(inStr: string, ctx: any, maxPixelLength: number, maxLines: number): Array<string> {
         const list: string[] = [];
 
         if (maxLines < 1 || maxLines > 10) {
@@ -211,32 +191,6 @@ export class NewsImage {
 
             if (list.length >= maxLines)
                 break;
-        }
-        return list;
-    }
-
-    private splitLineOLD(inStr: string, maxLineLength: number, maxLines: number) {
-        const list: string[] = [];
-
-        if (maxLines < 1 || maxLines > 10) {
-            this.logger.error(`NewsImage: splitLine: maxLines too large (${maxLines})`);
-            return list;
-        }
-
-        while (inStr.length > 0) {
-            let breakIndex: number;
-            if (inStr.length <= maxLineLength) {
-                list.push(inStr);
-                return list;
-            }
-
-            breakIndex = maxLineLength - 1;
-            while (breakIndex > 0 && (inStr.charAt(breakIndex) !== " ")) {
-                breakIndex--;
-            }
-
-            list.push(inStr.substring(0, breakIndex));
-            inStr = inStr.substring(breakIndex + 1);
         }
         return list;
     }

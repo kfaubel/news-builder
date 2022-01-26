@@ -4,6 +4,7 @@ import { Logger } from "./Logger.js";
 import { Kache } from "./Kache";
 import { SimpleImageWriter } from "./SimpleImageWriter.js";
 import { NewsBuilder } from "./NewsBuilder.js";
+import dotenv from "dotenv";
 
 // Use meow v9 for now.  V10 does not work without project level changes to handle "importMeta import.meta"
 import meow = require("meow");
@@ -37,7 +38,7 @@ Examples:
         key: {
             type: "string",
             alias: "k",
-            default: "test",
+            default: "default",
             isRequired: true
         },
         debug: {
@@ -50,6 +51,7 @@ Examples:
 
 async function main() {
     const logger = new Logger("news-builder", cli.flags.debug ? "verbose" : "info");
+    dotenv.config();  // Load var from .env into the environment
 
     logger.verbose("====================================");
     logger.verbose(`Source: ${cli.flags.source}`);
@@ -62,9 +64,15 @@ async function main() {
     const simpleImageWriter: SimpleImageWriter = new SimpleImageWriter(logger, cli.input[0]);
     const newsBuilder: NewsBuilder = new NewsBuilder(logger, cache, simpleImageWriter);
 
+    let key = "";
+
+    if (cli.flags.key === "default" && process.env.KEY !== undefined) {
+        key = process.env.KEY;
+    }
+
     const params: any = {
         newsSource: cli.flags.source,
-        key: cli.flags.key,
+        key: key,
         count: cli.flags.count
     };
 

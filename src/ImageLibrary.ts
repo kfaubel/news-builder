@@ -1,10 +1,13 @@
 import axios, { AxiosResponse } from "axios";
 import { LoggerInterface } from "./Logger.js";
 import { KacheInterface } from "./Kache.js";
-//import jpeg from "jpeg-js";
 import * as pure from "pureimage";
-import { PassThrough, Readable, Stream } from "stream";
+import { PNG } from "pngjs";
+import JPG from "jpeg-js";
 
+/**
+ * @interface - Type with a width, height and data buffer
+ */
 export interface MyImageType {
     width: number;
     height: number;
@@ -20,61 +23,91 @@ export class ImageLibrary {
         this.cache = cache;
     }
 
-    public async getImage(imageUrl: string): Promise<MyImageType | null> {
-        let picture: MyImageType | null = null;
+    /**
+     * Method to load a image from cache or fetch the URL when needed.  
+     * - The image header is used to determine type
+     * - HTTP ContentType header is ignored
+     * - JPG and PNG are supported, GIF and WEBP are not
+     * - Image is scaled proportionally to specified height
+     * @param imageUrl 
+     * @param scaledHeight Height to scale the iamge
+     * @returns Image of type MyImageType (width, height & data) or null
+     */
+    public async getImage(imageUrl: string, scaledHeight: number): Promise<MyImageType | null> {
+        let image: MyImageType | null = null;
+        let imageBuffer: Buffer | null = null;
+        let contentType = "";
+
         try {
-            //let picture: jpeg.BufferRet | null = null;            
+            const base64ImageStr: string = this.cache.get(imageUrl) as string;
 
-            interface Base64ImageStr {
-                dataStr: string;  // This is the base64 encoded PNG file contents
-            }
-            const base64ImageStr: Base64ImageStr = this.cache.get(imageUrl) as Base64ImageStr;
+            if (base64ImageStr !== null) {   
+                const imageData = Buffer.from(base64ImageStr, "base64"); 
+                const image = JPG.decode(imageData);
+                const bitmap = pure.make(image.width, image.height);
+                bitmap.data = image.data;
+                return bitmap;
+            } 
+                
+            this.logger.verbose("No cached image, fetching new");  
 
-            if (base64ImageStr !== null) {                
-                const dataStream = new Readable({
-                    read() {
-                        const imageData = Buffer.from(base64ImageStr.dataStr, "base64"); 
-                        this.push(imageData);
-                        this.push(null);
-                    }
+            await axios.get(imageUrl,  {responseType: "arraybuffer"})
+                .then(async (response: AxiosResponse) => {
+                    contentType = response.headers["content-type"];
+                    imageBuffer = Buffer.from(response.data, "binary");
+                })
+                .catch((error) => {
+                    this.logger.error(`ImageLibrary: Could not GET image data: Status: ${error?.response?.status}`);
+                    imageBuffer = null;
                 });
-              
-                picture = await pure.decodePNGFromStream(dataStream) as MyImageType;
-            } else {   
 
-                await axios.get(imageUrl, {responseType: "stream"})
-                    .then(async (res: AxiosResponse) => {
-                        const streamCopy: Stream = new PassThrough();
-                        res.data.pipe(streamCopy);
-                        try {
-                            picture = await pure.decodeJPEGFromStream(streamCopy) as MyImageType;
-                            this.logger.verbose("got jpg");
-                        } catch (e) {
-                            picture = null;
-                        }
-
-                        if (picture === null) {
-                            res.data.pipe(streamCopy);
-                            try {
-                                picture = await pure.decodePNGFromStream(streamCopy) as MyImageType;
-                                this.logger.verbose("got png");
-                                return(picture);
-                            } catch (e) {
-                                picture = null;
-                            }
-                        }
-
-                        this.logger.error("ImageLibrary: Got data but could not decode image");
-                    })
-                    .catch((error) => {
-                        this.logger.error(`ImageLibrary: Could not GET image data: Status: ${error?.response?.status}`);
-                        picture = null;
-                    });
+            if (imageBuffer === null) {
+                return null;
             }
-        } catch(e) {
-            this.logger.error(`ImageLibrary: thing did not go well: ${e}`);
-        }
+
+            if (imageBuffer[0] == 0x89 && imageBuffer[1] == 0x50) {
+                this.logger.verbose(`Response: ${contentType}, Image reports: PNG`);
+                image = PNG.sync.read(imageBuffer);
+            } else if (imageBuffer[0] == 0xFF && imageBuffer[1] == 0xD8) {
+                this.logger.verbose(`Response: ${contentType}, Image reports: JPG`);
+                image = JPG.decode(imageBuffer);
+            } else if (imageBuffer[8] == 0x57 && imageBuffer[9] == 0x45) {
+                this.logger.warn(`Response: ${contentType}, Image reports: WEBP - Unsupported`);
+                this.logger.verbose(`URL: ${imageUrl}`);
+                image = null;
+            } else {
+                this.logger.warn(`Response: ${contentType}, Image reports: ??? - Unsupported`);
+                this.logger.verbose(`URL: ${imageUrl}`);
+                image = null;
+            }
+            
+        } catch (err) {
+            this.logger.error(`ImageLibrary: getImage raised exception: ${err}`);
+        }   
         
-        return picture;
+        if (image === null) {
+            return null;
+        }
+
+        const bitmap = pure.make(image.width, image.height);
+        bitmap.data = image.data;
+
+        // Scale the image to the height parameter
+        const scaledWidth = (scaledHeight * bitmap.width) / bitmap.height;
+        const scaledBitmap = pure.make(scaledWidth, scaledHeight);
+        const ctx = scaledBitmap.getContext("2d");
+        ctx.drawImage(bitmap,
+            0, 0, bitmap.width, bitmap.height,  // source dimensions
+            0, 0, scaledWidth, scaledHeight     // destination dimensions
+        );
+
+        // Encode the bitmap as a jpeg to save in the cache
+        const jpegImage: JPG.BufferRet = JPG.encode(bitmap, 80);
+        const jpegImageBase64 = Buffer.from(jpegImage.data).toString("base64");
+        
+        const expirationTime: number = new Date().getTime() + 3 * 24 * 60 * 60 * 1000; // thre days from now
+        this.cache.set(imageUrl, jpegImageBase64, expirationTime);
+        
+        return scaledBitmap;
     }
 }

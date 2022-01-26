@@ -1,14 +1,10 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { LoggerInterface } from "./Logger";
-import { NewsImage, ImageResult } from "./NewsImage";
+import { NewsImage } from "./NewsImage";
 import { KacheInterface } from "./Kache";
 import { ImageWriterInterface } from "./SimpleImageWriter";
 import { NewsData, NewsItem } from "./NewsData";
-
-// export interface BaseBallBuilderParams {
-//     teamList: Array<string>;
-// }
 
 export class NewsBuilder {
     private logger: LoggerInterface;
@@ -64,14 +60,14 @@ export class NewsBuilder {
 
             for(let i = 0; i < count; i++) {
                 if (data[i] !== null && data[i].title !== null) {
-                    const item: ImageResult = await newsImage.getImage(data[i]);
-                    if (item !== undefined) {
+                    const item: Buffer | null = await newsImage.getImage(data[i]);
+                    if (item !== null) {
                         let imageNumberStr = `00${i+1}`; // 01 .. 10
                         imageNumberStr = imageNumberStr.substring(imageNumberStr.length - 2); // take the last 2 digits
         
-                        const filename = `${params.newsSource}-${imageNumberStr}.${item.imageType}`;
+                        const filename = `${params.newsSource}-${imageNumberStr}.jpg`;
                         this.logger.info(`Writing: ${filename}`);
-                        this.writer.saveFile(filename, item.imageData.data);
+                        this.writer.saveFile(filename, item);
                     } else {
                         this.logger.warn(`CreateImages: Unable to render image for: ${params.source}[${i}]`);
                     }

@@ -1,10 +1,13 @@
 import * as fs from "fs";
 import path from "path";
-import axios, { AxiosRequestConfig } from "axios";
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import he from "he";
 import { LoggerInterface } from "./Logger.js";
 import { KacheInterface } from "./Kache.js";
 
+/**
+ * This is the type of object we return
+ */
 export interface NewsItem {
     title?: string;
     description?: string;
@@ -13,6 +16,9 @@ export interface NewsItem {
     source?: string;
 }
 
+/**
+ * This is the type of the data returned from GET call
+ */
 interface Article {
     title: string;
     description: string;
@@ -20,14 +26,11 @@ interface Article {
     publishedAt: string;
 }
 
+/**
+ * Collection of articles from the GET call
+ */
 interface NewsJson {
     articles: Array<Article>;
-}
-
-interface AxiosResponse {
-    data: NewsJson;
-    status: number;
-    statusText: string;
 }
 
 export class NewsData {
@@ -39,6 +42,11 @@ export class NewsData {
         this.cache = cache;
     }
 
+    /**
+     * Decodes HTML and replaces <b> and <em> tags
+     * @param inStr Input string
+     * @returns Clean string
+     */
     private fixString(inStr: string): string {
         let outStr = he.decode(inStr);
         
@@ -109,8 +117,8 @@ export class NewsData {
                 newsItems[i] = newsItem;
             }
 
-            const nowMs: number = new Date().getTime() + 60 * 60 * 1000; // one hour from now
-            this.cache.set(cacheName, newsItems, nowMs);
+            const expirationTime: number = new Date().getTime() + 60 * 60 * 1000; // one hour from now
+            this.cache.set(cacheName, newsItems, expirationTime);
             
         } catch(e) {
             if (e instanceof Error) {
