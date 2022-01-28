@@ -8,7 +8,7 @@
     "start": "npm run build && npm run command",
     "test": "npm run build && npm run command",
     "sources": "the-verge google-news engadget msnbc",
-    "command": "node app.js --source google-news --count 10 --key default outdir1",
+    "command": "node app.js --source engadget --count 10 --key default outdir1",
     "build": "npm run clean && tsc",
     "clean": "shx rm -rf build/* outdir1/*",
     "prepare": "npm run build",

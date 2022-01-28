@@ -73,11 +73,11 @@ export class ImageLibrary {
                 image = JPG.decode(imageBuffer);
             } else if (imageBuffer[8] == 0x57 && imageBuffer[9] == 0x45) {
                 this.logger.warn(`Response: ${contentType}, Image reports: WEBP - Unsupported`);
-                this.logger.verbose(`URL: ${imageUrl}`);
+                this.logger.warn(`WEBP: ${imageUrl}`);
                 image = null;
             } else {
                 this.logger.warn(`Response: ${contentType}, Image reports: ??? - Unsupported`);
-                this.logger.verbose(`URL: ${imageUrl}`);
+                this.logger.warn(`UNKNOWN: ${imageUrl}`);
                 image = null;
             }
             
@@ -94,20 +94,19 @@ export class ImageLibrary {
 
         // Scale the image to the height parameter
         const scaledWidth = (scaledHeight * bitmap.width) / bitmap.height;
-        const scaledBitmap = pure.make(scaledWidth, scaledHeight);
-        const ctx = scaledBitmap.getContext("2d");
+        const scaledImage = pure.make(scaledWidth, scaledHeight);
+        const ctx = scaledImage.getContext("2d");
         ctx.drawImage(bitmap,
             0, 0, bitmap.width, bitmap.height,  // source dimensions
             0, 0, scaledWidth, scaledHeight     // destination dimensions
         );
 
         // Encode the bitmap as a jpeg to save in the cache
-        const jpegImage: JPG.BufferRet = JPG.encode(bitmap, 80);
+        const jpegImage: JPG.BufferRet = JPG.encode(scaledImage, 50);
         const jpegImageBase64 = Buffer.from(jpegImage.data).toString("base64");
         
         const expirationTime: number = new Date().getTime() + 3 * 24 * 60 * 60 * 1000; // thre days from now
         this.cache.set(imageUrl, jpegImageBase64, expirationTime);
-        
-        return scaledBitmap;
+        return scaledImage;
     }
 }

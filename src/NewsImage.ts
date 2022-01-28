@@ -114,6 +114,7 @@ export class NewsImage {
                     PictureX, PictureY, scaledWidth, PictureHeight  // destination dimensions
                 );
             } else {
+                return null;
                 ctx.fillStyle = textColor; 
                 ctx.font = mesgFont;
                 const mesg = (dataItem.source !== undefined) ? dataItem.source : "<No image>";
