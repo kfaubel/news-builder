@@ -59,20 +59,20 @@ export class NewsBuilder {
             }
 
             for(let i = 0; i < count; i++) {
-                if (data[i] !== null && data[i].title !== null) {
+                let imageNumberStr = `00${i+1}`; // 01 .. 10
+                imageNumberStr = imageNumberStr.substring(imageNumberStr.length - 2); // take the last 2 digits
+                const filename = `${params.newsSource}-${imageNumberStr}.jpg`;
+
+                if (data[i] !== null && data[i].title !== null) {                  
                     const item: Buffer | null = await newsImage.getImage(data[i]);
-                    if (item !== null) {
-                        let imageNumberStr = `00${i+1}`; // 01 .. 10
-                        imageNumberStr = imageNumberStr.substring(imageNumberStr.length - 2); // take the last 2 digits
-        
-                        const filename = `${params.newsSource}-${imageNumberStr}.jpg`;
+                    if (item !== null) {                        
                         this.logger.info(`Writing: ${filename}`);
                         this.writer.saveFile(filename, item);
                     } else {
-                        this.logger.warn(`CreateImages: No image available for: ${params.newsSource}: ${i+1}`);
+                        this.logger.warn(`CreateImages: No image available for: ${filename}`);
                     }
                 } else {
-                    this.logger.warn(`CreateImages: Image definision not available for: ${params.newsSource}: ${i+1}`);
+                    this.logger.warn(`CreateImages: Image definition not available for: ${filename}`);
                 }
             }
         } catch(e) {
