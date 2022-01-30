@@ -83,7 +83,6 @@ export class NewsImage {
         const ctx = img.getContext("2d");
 
         const titleFont  = "72pt 'OpenSans-Bold'";
-        const mesgFont   = "48pt 'OpenSans-Bold'";
         const creditFont = "32pt 'OpenSans-Bold'";
 
         // When used as an npm package, fonts need to be installed in the top level of the main project
@@ -105,7 +104,6 @@ export class NewsImage {
                 picture = await this.imageLibrary.getImage(dataItem.pictureUrl, PictureHeight);
             } else {
                 this.logger.warn(`getImage: Invalid image URL for ${dataItem.title}`);
-                picture = null;
             }
 
             if (picture !== null) {
@@ -163,15 +161,19 @@ export class NewsImage {
         
         while (inStr.length > 0) {
             let breakIndex: number;
+
+            // Will what's left, fit in a line?
             if (ctx.measureText(inStr).width <= maxPixelLength) {
                 list.push(inStr);
                 return list;
             }
 
+            // Walk back from the end of the input string to find a chuck that will fit on a line.
             breakIndex = inStr.length - 1;
             let activeLine = "";
             while (breakIndex > 0) {
                 if (inStr.charAt(breakIndex) === " ") {
+                    // We found a break, will the chunk fit
                     activeLine = inStr.substring(0, breakIndex);
                     if (ctx.measureText(activeLine).width <= maxPixelLength) {
                         break;

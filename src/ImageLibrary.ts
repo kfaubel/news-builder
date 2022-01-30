@@ -43,10 +43,10 @@ export class ImageLibrary {
 
             if (base64ImageStr !== null) {   
                 const imageData = Buffer.from(base64ImageStr, "base64"); 
-                const image = JPG.decode(imageData);
-                const bitmap = pure.make(image.width, image.height);
-                bitmap.data = image.data;
-                return bitmap;
+                const cacheImage = JPG.decode(imageData);
+                const cacheBitmap = pure.make(cacheImage.width, cacheImage.height);
+                cacheBitmap.data = cacheImage.data;
+                return cacheBitmap;
             } 
                 
             this.logger.verbose("No cached image, fetching new");  
@@ -58,7 +58,7 @@ export class ImageLibrary {
                 })
                 .catch((error) => {
                     if (typeof error?.response?.status !== "undefined") {
-                        this.logger.error(`ImageLibrary: GET failed. Status: ${error.response.status}`);
+                        this.logger.error(`ImageLibrary: GET failed. Status: ${error.response.status} for ${imageUrl}`);
                     } else {
                         this.logger.error(`ImageLibrary: GET failed. Error: ${error}`);
                     }
@@ -78,11 +78,9 @@ export class ImageLibrary {
             } else if (imageBuffer[8] == 0x57 && imageBuffer[9] == 0x45) {
                 this.logger.warn(`Response: ${contentType}, Image reports: WEBP - Unsupported`);
                 this.logger.warn(`WEBP: ${imageUrl}`);
-                image = null;
             } else {
                 this.logger.warn(`Response: ${contentType}, Image reports: ??? - Unsupported`);
                 this.logger.warn(`UNKNOWN: ${imageUrl}`);
-                image = null;
             }
             
         } catch (err) {
@@ -109,7 +107,7 @@ export class ImageLibrary {
         const jpegImage: JPG.BufferRet = JPG.encode(scaledImage, 50);
         const jpegImageBase64 = Buffer.from(jpegImage.data).toString("base64");
         
-        const expirationTime: number = new Date().getTime() + 3 * 24 * 60 * 60 * 1000; // thre days from now
+        const expirationTime: number = new Date().getTime() + 3 * 24 * 60 * 60 * 1000; // three days from now
         this.cache.set(imageUrl, jpegImageBase64, expirationTime);
         return scaledImage;
     }

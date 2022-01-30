@@ -33,7 +33,7 @@ export class NewsBuilder {
             }
             
             if (params.count === undefined) {
-                this.logger.error("CreateImages: param: count is undefined (using: 10)");
+                this.logger.log("CreateImages: param: count is undefined (using: 10)");
             }
 
             let count = 10;
@@ -54,7 +54,7 @@ export class NewsBuilder {
             }
 
             if (data.length < count) {
-                this.logger.log(`CreateImage: Received ${data.length} articles, expected ${count}`);
+                this.logger.warn(`CreateImage: Source: ${params.newsSource} Received ${data.length} articles, expected ${count}`);
                 count = data.length;
             }
 
