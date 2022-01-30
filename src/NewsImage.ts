@@ -101,9 +101,10 @@ export class NewsImage {
         try {
             let picture: MyImageType | null = null; 
 
-            if (dataItem.pictureUrl !== undefined) {
+            if (typeof dataItem.pictureUrl === "string" && dataItem.pictureUrl !== "") {
                 picture = await this.imageLibrary.getImage(dataItem.pictureUrl, PictureHeight);
             } else {
+                this.logger.warn(`getImage: Invalid image URL for ${dataItem.title}`);
                 picture = null;
             }
 
@@ -115,14 +116,6 @@ export class NewsImage {
                 );
             } else {
                 return null;
-                ctx.fillStyle = textColor; 
-                ctx.font = mesgFont;
-                const mesg = (dataItem.source !== undefined) ? dataItem.source : "<No image>";
-                const PictureWidth = PictureHeight * 1.3;
-                const mesgWidth = ctx.measureText(mesg).width;
-                
-                this.myFillRect(img, PictureX, PictureY, PictureWidth, PictureHeight, "#D0D0D0");
-                ctx.fillText(mesg, PictureX + (PictureWidth/2) - mesgWidth/2, PictureY + PictureHeight/2);
             }
         } catch (e: any) {
             this.logger.warn(`NewsImage: Exception: ${e}, Picture: ${dataItem.pictureUrl as string}`); 

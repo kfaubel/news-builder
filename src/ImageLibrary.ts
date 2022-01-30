@@ -57,7 +57,11 @@ export class ImageLibrary {
                     imageBuffer = Buffer.from(response.data, "binary");
                 })
                 .catch((error) => {
-                    this.logger.error(`ImageLibrary: Could not GET image data: Status: ${error?.response?.status}`);
+                    if (typeof error?.response?.status !== "undefined") {
+                        this.logger.error(`ImageLibrary: GET failed. Status: ${error.response.status}`);
+                    } else {
+                        this.logger.error(`ImageLibrary: GET failed. Error: ${error}`);
+                    }
                     imageBuffer = null;
                 });
 
@@ -70,7 +74,7 @@ export class ImageLibrary {
                 image = PNG.sync.read(imageBuffer);
             } else if (imageBuffer[0] == 0xFF && imageBuffer[1] == 0xD8) {
                 this.logger.verbose(`Response: ${contentType}, Image reports: JPG`);
-                image = JPG.decode(imageBuffer);
+                image = JPG.decode(imageBuffer, {maxMemoryUsageInMB: 800});
             } else if (imageBuffer[8] == 0x57 && imageBuffer[9] == 0x45) {
                 this.logger.warn(`Response: ${contentType}, Image reports: WEBP - Unsupported`);
                 this.logger.warn(`WEBP: ${imageUrl}`);

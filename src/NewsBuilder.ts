@@ -69,10 +69,10 @@ export class NewsBuilder {
                         this.logger.info(`Writing: ${filename}`);
                         this.writer.saveFile(filename, item);
                     } else {
-                        this.logger.warn(`CreateImages: Unable to render image for: ${params.source}[${i}]`);
+                        this.logger.warn(`CreateImages: No image available for: ${params.newsSource}: ${i+1}`);
                     }
                 } else {
-                    this.logger.warn(`CreateImages: Unable to get data for ${params.source}: ${i+1}`);
+                    this.logger.warn(`CreateImages: Image definision not available for: ${params.newsSource}: ${i+1}`);
                 }
             }
         } catch(e) {
