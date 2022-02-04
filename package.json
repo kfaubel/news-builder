@@ -6,9 +6,9 @@
   "types": "index.d.ts",
   "scripts": {
     "start": "npm run build && npm run command",
-    "test": "npm run build && npm run command",
-    "sources": "the-verge google-news engadget msnbc",
-    "command": "node app.js --source google-news --count 10 --key default outdir1",
+    "sources": "the-verge google-news engadget the-washington-post",
+    "test": "npm run build && node app.js --source test --count 10 --key test outdir1",
+    "command": "node app.js --debug --source the-washington-post --count 10 --key default outdir1",
     "build": "npm run clean && tsc",
     "clean": "shx rm -rf build/* outdir1/*",
     "prepare": "npm run build",

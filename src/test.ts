@@ -14,8 +14,8 @@ Usage:
     $ newsImage --source source-name --count count-number --debug  target-dir
 
 Options:
-    --source, -s     - newsource (e.g.: msnbc)
-    --key, -k        - newsapi.com key
+    --source, -s     - newsource (e.g.: google-news)
+    --key, -k        - newsapi.com key (default uses env KEY value, test uses test data)
     --count, -c      - count (default 10)
     --debug, -d      - enables debug output
 
@@ -32,7 +32,7 @@ Examples:
         source: {
             type: "string",
             alias: "s",
-            default: "msnbc",
+            default: "google-news",
             isRequired: true
         },
         key: {
@@ -64,7 +64,7 @@ async function main() {
     const simpleImageWriter: SimpleImageWriter = new SimpleImageWriter(logger, cli.input[0]);
     const newsBuilder: NewsBuilder = new NewsBuilder(logger, cache, simpleImageWriter);
 
-    let key = "";
+    let key = cli.flags.key;
 
     if (cli.flags.key === "default" && process.env.KEY !== undefined) {
         key = process.env.KEY;

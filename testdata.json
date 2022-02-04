@@ -1,0 +1,127 @@
+{
+    "status": "ok",
+    "totalResults": 10,
+    "articles": [
+        {
+            "source": {
+                "id": "msnbc",
+                "name": "MSNBC"
+            },
+            "author": "MSNBC",
+            "title": "This is my test title with &lt;b&gt;: '<b>' and &lt;/b&gt;: '</b>' and also &lt;em&gt;: '<em>' and &lt;/em&gt; : '</em>' and ampersand: '&amp;', gt '&gt;' and lt '&lt;'",
+            "description": "Tennis player Coco Gauff has tested positive for Covid-19 and will not be competing in the Tokyo Olympics, where she was expected to lead Team USA",
+            "url": "https://www.nbcnews.com/news/sports/teen-tennis-star-coco-gauff-tests-positive-covid-will-sit-n1274319",
+            "urlToImage": "https://static.onecms.io/wp-content/uploads/sites/20/2021/07/06/valerie-bertinelli-2000.jpg",
+            "urlToImageZ": "https://media-cldnry.s-nbcnews.com/image/upload/t_nbcnews-fp-1200-630,f_auto,q_auto:best/newscms/2021_28/3492083/210718-coco-gauff-jm-1522.jpg",
+            "publishedAt": "2021-07-18T19:35:21Z",
+            "content": "Tennis player Coco Gauff has tested positive for Covid-19 and will not be competing in the Tokyo Olympics, where she was expected to lead Team USA.\r\nGauff, 17, announced the news through her own soci… [+893 chars]"
+        },
+        {
+            "source": {
+                "id": "test",
+                "name": "HYPEBEAST"
+            },
+            "author": "info@hypebeast.com (HYPEBEAST), HYPEBEAST",
+            "title": "Boston Red Sox Legend David Ortiz Elected Into Baseball Hall of Fame",
+            "description": "Boston Red Sox slugger David Ortiz was voted into the Baseball Hall of Fame on Tuesday evening. Ortiz received 77.9% of the votes cast by the Baseball Writers' Association of America, putting him just over the 75% necessary to be admitted.A three-time World S…",
+            "url": "https://hypebeast.com/2022/1/david-ortiz-boston-red-sox-hall-of-fame-2022",
+            "urlToImage": "https://image-cdn.hypb.st/https%3A%2F%2Fhypebeast.com%2Fimage%2F2022%2F01%2FRed-Sox-Legend-David-Ortiz-Elected-Into-Baseball-Hall-of-Fame-tw.jpg?w=960&cbr=1&q=90&fit=max",
+            "publishedAt": "2022-01-26T01:09:29Z",
+            "content": "Boston Red Sox slugger David Ortiz was voted into the Baseball Hall of Fame on Tuesday evening. Ortiz received 77.9% of the votes cast by the Baseball Writers’ Association of America, putting him jus… [+1045 chars]"},
+        {
+            "source": {
+                "id": "test",
+                "name": "TEST"
+            },
+            "title": "The best breakfast tacos are the ones made at home",
+            "description": "Almost anything can go into this breakfast taco recipe — and it makes a great meal any time of day.",
+            "urlToImage": "https://www.washingtonpost.com/wp-apps/imrs.php?src=https://arc-anglerfish-washpost-prod-washpost.s3.amazonaws.com/public/2RHDGODP4EI6ZMPCAU45VD2EKE.jpg&w=1440",
+            "publishedAt": "2022-01-20T13:30:05Z"
+        },
+        {
+            "source": {
+                "id": "the-washington-post",
+                "name": "The Washington Post"
+            },
+            "title": "The Washington Football Team’s 18-month rebrand was extensive. Now the hard part begins.",
+            "description": "Commanders? Admirals? After decades of controversy and 18 months of research and planning, team is finally set to unveil a new name and logo.",
+            "urlToImage": "https://www.washingtonpost.com/wp-apps/imrs.php?src=https://arc-anglerfish-washpost-prod-washpost.s3.amazonaws.com/public/EQYWQSZT7JH5RJ3DDDLZ4ATXXA.jpg&w=1440",
+            "publishedAt": "2022-02-01T16:14:54Z"
+        },
+        {
+            "source": {
+                "id": "bloomberg",
+                "name": "Bloomberg"
+            },
+            "author": null,
+            "title": "Former Cubs, Red Sox Pitcher Jon Lester Announces Retirement",
+            "description": "Chicago (AP) -- Jon Lester, a durable left-hander who won three World Series titles during 16 years in the majors, has announced his retirement.",
+            "url": "https://www.bloomberg.com/news/articles/2022-01-12/former-cubs-red-sox-pitcher-jon-lester-announces-retirement",
+            "urlToImage": "https://assets.bwbx.io/images/users/iqjWHBFdfxIU/i4YiMiMTycSI/v0/1200x816.jpg",
+            "publishedAt": "2022-01-12T16:25:13Z",
+            "content": "Chicago (AP) -- Jon Lester, a durable left-hander who won three World Series titles during 16 years in the majors, has announced his retirement.\r\nLester, who turned 38 on Friday, finishes with a 200-… [+1786 chars]"
+        },
+        {
+            "source": {
+                "id": "forbes",
+                "name": "Forbes"
+            },
+            "author": "Forbes",
+            "title": "Geena Davis Is Creating Opportunities For Women In Hollywood By Tackling Gender Bias",
+            "description": "Geena Davis Is Creating Opportunities For Women In Hollywood By Tackling Gender Bias",
+            "url": "https://www.forbes.com/sites/michelleking/2017/04/03/geena-davis-is-creating-opportunities-for-women-in-hollywood-by-tackling-gender-bias/?sh=32d31e21fa14",
+            "urlToImage": "https://imageio.forbes.com/blogs-images/michelleking/files/2017/04/ggggg-1200x1601.jpg?fit=bounds&format=jpg&width=960",
+            "publishedAt": "2021-07-18T16:26:14Z",
+            "content": "Geena Davis Is Creating Opportunities For Women In Hollywood By Tackling Gender Bias"
+        },
+        {
+            "source": {
+                "id": "the-washington-post",
+                "name": "The Washington Post"
+            },
+            "title": "Within the Olympics’ ‘closed loop,’ Beijing is seen only through a window",
+            "description": "At the Beijing Olympics, a strict pandemic protocol creates an effective wall between the local population and participants in the Games.",
+            "urlToImage": "https://www.washingtonpost.com/wp-apps/imrs.php?src=https://d1i4t8bqe7zgj6.cloudfront.net/02-01-2022/t_ca72590c94c54555bfe254de05b81408_name_final_project_00_04_11_19_Still001.jpg&w=1440",
+            "publishedAt": "2022-02-01T13:17:47Z"        
+        },
+        {
+            "source": {
+                "id": "msnbc",
+                "name": "MSNBC"
+            },
+            "author": "MSNBC",
+            "title": "Angela Merkel calls for climate change action as she surveys deadly flood damage",
+            "description": "German Chancellor Angela Merkel pledged financial relief for areas devastated by deadly flooding, as the death toll from torrential rain continues to rise.",
+            "url": "https://www.nbcnews.com/news/world/angela-merkel-calls-climate-change-action-she-surveys-deadly-flood-n1274310",
+            "urlToImage": "https://media-cldnry.s-nbcnews.com/image/upload/t_nbcnews-fp-1200-630,f_auto,q_auto:best/newscms/2021_28/3492046/210718-angela-merkel-schuld-jm-0946.jpg",
+            "publishedAt": "2021-07-18T15:30:00Z",
+            "content": "HEIMERSHEIM, Germany The train station has been reduced to rubble, wrecked cars lie on the tracks and uprooted trees line the riverbank.\r\nHundreds in the village of Heimersheim were still without pow… [+2989 chars]"
+        },
+        {
+            "source": {
+                "id": "hello",
+                "name": "Hello"
+            },
+            "author": "Hello",
+            "title": "Michelle Pfeiffer continues to give fans what they want on her social media: stunning pictures",
+            "description": "Michelle Pfeiffer continues to give fans what they want on her social media: stunning pictures",
+            "url": "https://www.hellomagazine.com/imagenes/celebrities/20210622115933/michelle-pfeiffer-bids-a-bittersweet-farewell-with-stunning-selfie/0-561-176/michelle-pfeiffer-nyc-t.jpg",
+            "urlToImage": "https://www.cheatsheet.com/wp-content/uploads/2020/12/Michelle-Pfeiffer.jpg",
+            "publishedAt": "2021-07-18T15:01:23Z",
+            "content": "Michelle Pfeiffer continues to give fans what they want on her social media: stunning pictures"
+        },
+        {
+            "source": {
+                "id": "msnbc",
+                "name": "MSNBC"
+            },
+            "author": "MSNBC",
+            "title": "The future of cannabis is female: Gen Z women are fastest-growing consumers of legal weed",
+            "description": "Legal cannabis sales soared among Gen Z women during the pandemic due to demographics, marijuana destigmatization and increasingly professional weed brands.",
+            "url": "https://www.nbcnews.com/business/business-news/future-cannabis-female-gen-z-women-are-fastest-growing-consumers-n1274253",
+            "urlToImage": "https://media-cldnry.s-nbcnews.com/image/upload/t_nbcnews-fp-1200-630,f_auto,q_auto:best/newscms/2021_28/3491899/210716-2x1-danielle-jordan-ew-428p.jpg",
+            "publishedAt": "2021-07-18T14:52:24Z",
+            "content": "Pot has gone retail.\r\nIn the 1990s, nameless plastic baggies marked with an X for potency, jars adorned with pot leaves and sexually suggestive imagery were the default marketing tactics for marijuan… [+7506 chars]"
+        }
+    ]
+}

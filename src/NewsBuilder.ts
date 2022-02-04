@@ -49,12 +49,12 @@ export class NewsBuilder {
             const data: Array<NewsItem> | null = await newsData.getData(params.newsSource, params.key);
 
             if (data === null ) {
-                this.logger.error(`CreateImages: could not get data for source ${params.newsSource}`);
+                this.logger.warn(`CreateImages: No data for source ${params.newsSource}`);
                 return false;
             }
 
             if (data.length < count) {
-                this.logger.warn(`CreateImage: Source: ${params.newsSource} Received ${data.length} articles, expected ${count}`);
+                this.logger.log(`CreateImage: Source: ${params.newsSource} Received ${data.length} articles, expected ${count}`);
                 count = data.length;
             }
 
@@ -66,21 +66,21 @@ export class NewsBuilder {
                 if (data[i] !== null && data[i].title !== null) {                  
                     const item: Buffer | null = await newsImage.getImage(data[i]);
                     if (item !== null) {                        
-                        this.logger.info(`Writing: ${filename}`);
+                        this.logger.info(`NewsBuilder: Writing: ${filename}`);
                         this.writer.saveFile(filename, item);
                     } else {
-                        this.logger.warn(`CreateImages: No image available for: ${filename}`);
+                        this.logger.warn(`NewsBuilder: No image available for: ${filename}`);
                     }
                 } else {
-                    this.logger.warn(`CreateImages: Image definition not available for: ${filename}`);
+                    this.logger.warn(`NewsBuilder: Image definition not available for: ${filename}`);
                 }
             }
         } catch(e) {
             if (e instanceof Error) {
-                this.logger.error(`NewsBuilder CreateImages: Exception: ${e.message}`);
+                this.logger.error(`NewsBuilder: Exception: ${e.message}`);
                 this.logger.error(`${e.stack}`);
             } else {
-                this.logger.error(`NewsBuilder CreateImages: Exception: ${e}`);
+                this.logger.error(`NewsBuilder Exception: ${e}`);
             }
             return false;
         }

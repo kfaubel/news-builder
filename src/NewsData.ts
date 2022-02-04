@@ -75,8 +75,8 @@ export class NewsData {
             
             newsItems = [];
             if (key === "test") {
-                this.logger.info("NewsData: We are going to use test data (msnbc)");
-                const sampleNewsFile = path.join(".", "msnbc-top-headlines.json");
+                this.logger.info("NewsData: We are going to use test data");
+                const sampleNewsFile = path.join(".", "testdata.json");
                 const sampleBuffer = fs.readFileSync(sampleNewsFile);
                 newsJson = JSON.parse(sampleBuffer.toString());
             } else {
@@ -95,7 +95,7 @@ export class NewsData {
                         newsJson = res.data;
                     })
                     .catch((error) => {
-                        this.logger.error(`NewsData: No articles (GET Status: ${error.response.status})`);
+                        this.logger.warn(`NewsData: No articles: ${error})`);
                         return null;
                     });
             }
@@ -103,7 +103,7 @@ export class NewsData {
             if (newsJson === null) {
                 return null;
             }
-            
+
             const articles: Array<Article> = newsJson.articles;
 
             for(let i = 0; i < articles.length; i++) {
@@ -121,12 +121,7 @@ export class NewsData {
             this.cache.set(cacheName, newsItems, expirationTime);
             
         } catch(e) {
-            if (e instanceof Error) {
-                this.logger.error(`NewsData: Read article data for source: ${source}: Exception: ${e.message}`);
-                this.logger.error(`${e.stack}`);
-            } else {
-                this.logger.error(`NewsData: Read article data for source: ${source}: Exception: ${e}`);
-            }
+            this.logger.error(`NewsData: Read article data for source: ${source}: Exception: ${e}`);
             return null;
         }
 

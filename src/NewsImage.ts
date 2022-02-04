@@ -116,7 +116,7 @@ export class NewsImage {
                 return null;
             }
         } catch (e: any) {
-            this.logger.warn(`NewsImage: Exception: ${e}, Picture: ${dataItem.pictureUrl as string}`); 
+            this.logger.error(`NewsImage: Exception: ${e}, Picture: ${dataItem.pictureUrl as string}`); 
             this.logger.error(`Stack: ${e.stack}`);
         }
 
@@ -154,9 +154,9 @@ export class NewsImage {
     private splitLine(inStr: string, ctx: any, maxPixelLength: number, maxLines: number): Array<string> {
         const list: string[] = [];
 
-        if (maxLines < 1 || maxLines > 10) {
-            this.logger.error(`splitLine: maxLines too large (${maxLines})`);
-            return list;
+        if (maxLines < 1 || maxLines > 5) {
+            this.logger.log(`splitLine: maxLines too large (${maxLines}), using 5`);
+            maxLines = 5;
         }
         
         while (inStr.length > 0) {

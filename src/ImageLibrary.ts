@@ -42,6 +42,7 @@ export class ImageLibrary {
             const base64ImageStr: string = this.cache.get(imageUrl) as string;
 
             if (base64ImageStr !== null) {   
+                this.logger.verbose("ImageLibrary: Using cached image");
                 const imageData = Buffer.from(base64ImageStr, "base64"); 
                 const cacheImage = JPG.decode(imageData);
                 const cacheBitmap = pure.make(cacheImage.width, cacheImage.height);
@@ -49,7 +50,7 @@ export class ImageLibrary {
                 return cacheBitmap;
             } 
                 
-            this.logger.verbose("No cached image, fetching new");  
+            this.logger.verbose("ImageLibrary: No cached image, fetching new");  
 
             await axios.get(imageUrl,  {responseType: "arraybuffer"})
                 .then(async (response: AxiosResponse) => {
@@ -57,11 +58,7 @@ export class ImageLibrary {
                     imageBuffer = Buffer.from(response.data, "binary");
                 })
                 .catch((error) => {
-                    if (typeof error?.response?.status !== "undefined") {
-                        this.logger.error(`ImageLibrary: GET failed. Status: ${error.response.status} for ${imageUrl}`);
-                    } else {
-                        this.logger.error(`ImageLibrary: GET failed. Error: ${error}`);
-                    }
+                    this.logger.warn(`ImageLibrary: GET failed. Error: ${error}`);
                     imageBuffer = null;
                 });
 

@@ -16,12 +16,16 @@ export class SimpleImageWriter implements ImageWriterInterface {
         try {
             fs.mkdirSync(this.directory, { recursive: true });
         } catch (e) {
-            this.logger.error(`Failure to create output directory ${this.directory} - ${e}`);
+            this.logger.error(`SimpleImageWriter: Failed to create output directory ${this.directory} - ${e}`);
         }
     }
 
     saveFile(fileName: string, buf: Buffer): void {
-        const fullName: string = path.join(this.directory, fileName);
-        fs.writeFileSync(fullName, buf);
+        try {
+            const fullName: string = path.join(this.directory, fileName);
+            fs.writeFileSync(fullName, buf);
+        } catch (e) {
+            this.logger.error(`Failed to write file: ${fileName} - ${e}`);
+        }  
     }
 }
