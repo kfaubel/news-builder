@@ -38,7 +38,7 @@ Examples:
         key: {
             type: "string",
             alias: "k",
-            default: "default",
+            default: "default, uses KEY env variable",
             isRequired: true
         },
         debug: {
@@ -64,10 +64,19 @@ async function main() {
     const simpleImageWriter: SimpleImageWriter = new SimpleImageWriter(logger, cli.input[0]);
     const newsBuilder: NewsBuilder = new NewsBuilder(logger, cache, simpleImageWriter);
 
-    let key = cli.flags.key;
+    let key: string = cli.flags.key;
 
-    if (cli.flags.key === "default" && process.env.KEY !== undefined) {
-        key = process.env.KEY;
+    if (key === "default") {
+        if (typeof process.env.KEY !== "undefined") {
+            key = process.env.KEY;
+        } else {
+            logger.error("news-builder: KEY environment variable is not defined");
+        }
+    }
+
+    if (typeof key !== "string" || key === "") {
+        logger.error("news-builder: key is not defined");
+        return 1;        
     }
 
     const params: any = {

@@ -52,8 +52,12 @@ export class ImageLibrary {
                 
             this.logger.verbose("ImageLibrary: No cached image, fetching new");  
 
+            const startTime = new Date();
             await axios.get(imageUrl,  {responseType: "arraybuffer"})
                 .then(async (response: AxiosResponse) => {
+                    if (typeof process.env.TRACK_GET_TIMES !== "undefined" ) {
+                        this.logger.info(`ImageLibrary (NewsData): GET TIME: ${new Date().getTime() - startTime.getTime()}ms`);
+                    }
                     contentType = response.headers["content-type"];
                     imageBuffer = Buffer.from(response.data, "binary");
                 })

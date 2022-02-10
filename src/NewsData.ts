@@ -90,8 +90,12 @@ export class NewsData {
                     timeout: 2000
                 };
 
+                const startTime = new Date();
                 await axios.get(url, options)
                     .then((res: AxiosResponse) => {
+                        if (typeof process.env.TRACK_GET_TIMES !== "undefined" ) {
+                            this.logger.info(`NewsData: GET TIME: ${new Date().getTime() - startTime.getTime()}ms`);
+                        }
                         newsJson = res.data;
                     })
                     .catch((error) => {
