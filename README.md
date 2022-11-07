@@ -3,6 +3,12 @@ Module for building images of current news
 
 Creates an image based on news from newsapi.org sources
 
+```
+https://newsapi.org/v1/sources
+
+https://newsapi.org/v1/articles?source=ars-technica&sortBy=top&apiKey=<key>
+```
+
 Good sources
 * engadget
 * google-news

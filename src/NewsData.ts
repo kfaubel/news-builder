@@ -33,6 +33,13 @@ interface NewsJson {
     articles: Array<Article>;
 }
 
+/**
+ * NewsData pulls data from newsapi.org
+ * 
+ * The source list is availabl here: https://newsapi.org/v1/sources
+ * 
+ * Sample data url: https://newsapi.org/v1/articles?source=ars-technica&sortBy=top&apiKey=<key>
+ */
 export class NewsData {
     private logger: LoggerInterface;
     private cache: KacheInterface;
@@ -80,7 +87,7 @@ export class NewsData {
                 const sampleBuffer = fs.readFileSync(sampleNewsFile);
                 newsJson = JSON.parse(sampleBuffer.toString());
             } else {
-                this.logger.info(`NewsData: ${source} - Fetching: ${url}`);
+                this.logger.verbose(`NewsData: ${source} - Fetching: ${url}`);
 
                 const options: AxiosRequestConfig = {
                     responseType: "json",
