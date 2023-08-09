@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import jpeg from "jpeg-js";
 import path from "path";
-import dateformat from "dateformat";
 import * as pure from "pureimage";
 import { LoggerInterface } from "./Logger.js";
 import { KacheInterface } from "./Kache.js";
@@ -132,7 +131,7 @@ export class NewsImage {
         
         // Draw credits at the bottom
         const published: Date = new Date((dataItem.publishedAt || "").toString());
-        const credits = `Source: ${dataItem.source} from newsapi.org, ${dateformat(published, "mmmm dS, yyyy, h:MM TT")}`;
+        const credits = `Source: ${dataItem.source} from newsapi.org, ${published.toLocaleString()}`;
         ctx.fillStyle = textColor; 
         ctx.font = creditFont;
         ctx.fillText(credits, CreditOffsetX, imageHeight - CreditOffsetY);

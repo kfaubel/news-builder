@@ -119,10 +119,10 @@ export class NewsData {
 
             for(let i = 0; i < articles.length; i++) {
                 const newsItem: NewsItem = {};
-                newsItem.title = this.fixString(articles[i].title);
-                newsItem.description = this.fixString(articles[i].description);
-                newsItem.pictureUrl = articles[i].urlToImage;
-                newsItem.publishedAt = articles[i].publishedAt;
+                newsItem.title = (articles[i].title === null) ? "" : this.fixString(articles[i].title);
+                newsItem.description = (articles[i].description === null) ? "" : this.fixString(articles[i].description);
+                newsItem.pictureUrl = (articles[i].urlToImage === null) ? "" : articles[i].urlToImage;
+                newsItem.publishedAt = (articles[i].publishedAt === null) ? "" : articles[i].publishedAt;
                 newsItem.source = source;
 
                 newsItems[i] = newsItem;

@@ -96,7 +96,8 @@ export class ImageLibrary {
         bitmap.data = image.data;
 
         // Scale the image to the height parameter
-        const scaledWidth = (scaledHeight * bitmap.width) / bitmap.height;
+        const scaledWidth = Math.round((scaledHeight * bitmap.width) / bitmap.height);
+        this.logger.info(`ImageLibrary: Scaling image to ${scaledWidth}x${scaledHeight}`);
         const scaledImage = pure.make(scaledWidth, scaledHeight);
         const ctx = scaledImage.getContext("2d");
         ctx.drawImage(bitmap,
