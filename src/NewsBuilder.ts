@@ -6,6 +6,12 @@ import { KacheInterface } from "./Kache";
 import { ImageWriterInterface } from "./SimpleImageWriter";
 import { NewsData, NewsItem } from "./NewsData";
 
+export interface Params {
+    newsSource: string;
+    key: string;
+    count: number;
+}
+
 export class NewsBuilder {
     private logger: LoggerInterface;
     private cache: KacheInterface;
@@ -19,7 +25,7 @@ export class NewsBuilder {
 
     // I would prefer to use the interface commented out above but it does not work direclty.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    public async CreateImages(params: any): Promise<boolean>{
+    public async CreateImages(params: Params): Promise<boolean>{
         try {
 
             if (params.newsSource === undefined) {
