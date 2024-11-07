@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from "axios";
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { LoggerInterface } from "./Logger.js";
 import { KacheInterface } from "./Kache.js";
 import * as pure from "pureimage";
@@ -39,6 +39,7 @@ export class ImageLibrary {
         let contentType = "";
 
         try {
+            this.logger.verbose(`ImageLibrary: getImage:  ${imageUrl}`);
             const base64ImageStr: string = this.cache.get(imageUrl) as string;
 
             if (base64ImageStr !== null) {   
@@ -49,14 +50,19 @@ export class ImageLibrary {
                 cacheBitmap.data = cacheImage.data;
                 return cacheBitmap;
             } 
-                
-            this.logger.verbose("ImageLibrary: No cached image, fetching new");  
+
+            this.logger.verbose("ImageLibrary: Fetching new image");
+
+            const options: AxiosRequestConfig = {
+                responseType: "arraybuffer",
+                timeout: 10000
+            };
 
             const startTime = new Date();
-            await axios.get(imageUrl,  {responseType: "arraybuffer"})
+            await axios.get(imageUrl,  options)
                 .then(async (response: AxiosResponse) => {
                     if (typeof process.env.TRACK_GET_TIMES !== "undefined" ) {
-                        this.logger.info(`ImageLibrary (NewsData): GET TIME: ${new Date().getTime() - startTime.getTime()}ms`);
+                        this.logger.info(`ImageLibrary: GET TIME: ${new Date().getTime() - startTime.getTime()}ms`);
                     }
                     contentType = response.headers["content-type"];
                     imageBuffer = Buffer.from(response.data, "binary");
@@ -111,6 +117,7 @@ export class ImageLibrary {
         
         const expirationTime: number = new Date().getTime() + 3 * 24 * 60 * 60 * 1000; // three days from now
         this.cache.set(imageUrl, jpegImageBase64, expirationTime);
+        this.logger.verbose("ImageLibrary: Caching image and returning scaled image");
         return scaledImage;
     }
 }

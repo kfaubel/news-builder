@@ -94,7 +94,7 @@ export class NewsData {
                     headers: {                        
                         "Content-Encoding": "gzip"
                     },
-                    timeout: 2000
+                    timeout: 10000
                 };
 
                 const startTime = new Date();

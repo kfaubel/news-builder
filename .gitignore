@@ -5,12 +5,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
-outdir1
 count
 
-outdir1
-outdir
 build
+images
 image.*
 unknown
 news-cache.json

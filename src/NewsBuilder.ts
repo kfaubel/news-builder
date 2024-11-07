@@ -68,6 +68,7 @@ export class NewsBuilder {
                 let imageNumberStr = `00${i+1}`; // 01 .. 10
                 imageNumberStr = imageNumberStr.substring(imageNumberStr.length - 2); // take the last 2 digits
                 const filename = `${params.newsSource}-${imageNumberStr}.jpg`;
+                this.logger.verbose(`NewsBuilder::CreateImages: Requesting: ${filename}`);
 
                 if (data[i] !== null && data[i].title !== null) {                  
                     const item: Buffer | null = await newsImage.getImage(data[i]);
@@ -80,6 +81,7 @@ export class NewsBuilder {
                 } else {
                     this.logger.warn(`NewsBuilder: Image definition not available for: ${filename}`);
                 }
+                this.logger.verbose("====================================");
             }
         } catch(e) {
             if (e instanceof Error) {

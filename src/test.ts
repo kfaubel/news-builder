@@ -6,6 +6,7 @@ import { SimpleImageWriter } from "./SimpleImageWriter.js";
 import { NewsBuilder } from "./NewsBuilder.js";
 import dotenv from "dotenv";
 import { Command } from "commander"; // https://www.npmjs.com/package/commander
+import fs from "fs";
 
 async function main() {
     
@@ -15,7 +16,6 @@ async function main() {
 
     program 
         .option("-l, --loglevel <level>", "set the log level (error, warn, info, debug, verbose)", "info")
-        .option("-o, --outdir <outdir>", "Output directory", "outdir")
         .option("-s, --source <source>", "News source ('google-news')")
         .option("-k, --key <key>", "default, uses KEY env variable", "default")
         .option("-c, --count <count>", "number or screens", "10");
@@ -27,7 +27,17 @@ async function main() {
     const source = options.source;
     let key = options.key;
     const count = options.count;
-    const outdir = options.outdir;
+    const outdir = `images/${source}`;
+
+    // Create the outdir if it does not exist
+    
+    if (!fs.existsSync("images")) {
+        fs.mkdirSync("images");
+    }
+    
+    if (!fs.existsSync(outdir)) {
+        fs.mkdirSync(outdir);
+    }
 
     const logLevels = ["error", "warn", "info", "debug", "verbose"];
     if (!logLevels.includes(logLevel)) {
@@ -37,13 +47,12 @@ async function main() {
 
     const logger = new Logger("news-builder", logLevel);
     
-    // "command": "node app.js --debug --source google-news --count 10 --key default --outdir outdir1",
+    // "command": "node app.js --debug --source google-news --count 10 --key default",
 
     logger.verbose("====================================");
     logger.verbose(`Source: ${source}`);
     logger.verbose(`Key: ${key}`);
     logger.verbose(`Count: ${count}`);
-    logger.verbose(`Out dir: ${outdir}`);
     logger.verbose("====================================");
     
     const cache: Kache = new Kache(logger, "news-cache.json");

@@ -46,4 +46,9 @@ Options:
   -k, --key <key>         default, uses KEY env variable (default: "default")
   -c, --count <count>     number or screens (default: "10")
   -h, --help              display help for command
-  ``````
+  ```
+  # To Deploy
+  First check in changes and make sure the version number is updated in package.json
+  ```
+  $ npm publish
+  ```

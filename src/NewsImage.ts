@@ -102,7 +102,7 @@ export class NewsImage {
             if (typeof dataItem.pictureUrl === "string" && dataItem.pictureUrl !== "") {
                 picture = await this.imageLibrary.getImage(dataItem.pictureUrl, PictureHeight);
             } else {
-                this.logger.warn(`getImage: Invalid image URL for ${dataItem.title}`);
+                this.logger.warn(`NewsImage:getImage: Invalid image URL for ${dataItem.title}`);
             }
 
             if (picture !== null) {
