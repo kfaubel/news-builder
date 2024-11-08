@@ -22,19 +22,21 @@ export class Kache implements KacheInterface {
     private cacheStorage: KacheStorage; 
     private cacheName: string;
     private cachePath: string;
-
+    private detailedLoggingEnabled: boolean;
     private logger: LoggerInterface;
 
-    constructor(logger: LoggerInterface, cacheName: string) {
+    constructor(logger: LoggerInterface, cacheName: string, detailedLoggingEnabled?: boolean) {
         this.logger = logger;
         this.cacheName = cacheName;
+        this.detailedLoggingEnabled = detailedLoggingEnabled || false;
         this.cachePath = path.resolve(__dirname, "..", this.cacheName);
         this.cacheStorage = {};
 
         try {
             const cacheData: Buffer | null | undefined = fs.readFileSync(this.cachePath);
             if (cacheData !== undefined && cacheData !== null) {
-                this.logger.verbose(`Cache: Using: ${this.cacheName}`); // ${JSON.stringify(this.cacheStorage, null, 4)}`);
+                if (this.detailedLoggingEnabled)
+                    this.logger.verbose(`Cache: Using: ${this.cacheName}`); // ${JSON.stringify(this.cacheStorage, null, 4)}`);
   
                 this.cacheStorage = JSON.parse(cacheData.toString());
 
@@ -42,17 +44,19 @@ export class Kache implements KacheInterface {
                     const cacheItem = this.cacheStorage[key];
         
                     if (cacheItem.expiration < new Date().getTime()) {
-                        this.logger.info(`Cache load: '${key}' has expired, deleting`);
+                        if (this.detailedLoggingEnabled)
+                            this.logger.info(`Cache load: '${key}' has expired, deleting`);
                         delete this.cacheStorage[key];
                     } else {
-                        this.logger.verbose(`Cache load: '${key}' still good.`);
+                        if (detailedLoggingEnabled)
+                            this.logger.verbose(`Cache load: '${key}' still good.`);
                     }
                 }
             } else {
                 this.logger.verbose(`Cache: Creating: ${this.cacheName}`);
             }
         } catch (e) {
-            this.logger.verbose(`Cache: Exception: creating: ${this.cacheName}`);
+            this.logger.error(`Cache: Exception: creating: ${this.cacheName}`);
         }
     }
 

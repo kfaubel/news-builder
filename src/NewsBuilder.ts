@@ -68,6 +68,10 @@ export class NewsBuilder {
                 let imageNumberStr = `00${i+1}`; // 01 .. 10
                 imageNumberStr = imageNumberStr.substring(imageNumberStr.length - 2); // take the last 2 digits
                 const filename = `${params.newsSource}-${imageNumberStr}.jpg`;
+
+                // Remove the old file, even if we may not have a new one.
+                this.writer.deleteFile(filename);
+                
                 this.logger.verbose(`NewsBuilder::CreateImages: Requesting: ${filename}`);
 
                 if (data[i] !== null && data[i].title !== null) {                  

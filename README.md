@@ -36,19 +36,19 @@ or
 
 $ node app.js 
 ```
-```
 Usage: app [options]
+```
+Example: app -s cnn -k <key> -c 10
 
 Options:
   -l, --loglevel <level>  set the log level (error, warn, info, debug, verbose (default: "info")
-  -o, --outdir <outdir>   Output directory (default: "outdir")
   -s, --source <source>   News source ('google-news')
-  -k, --key <key>         default, uses KEY env variable (default: "default")
+  -k, --key <key>         default, uses KEY env variable (default: "default"), or pass in a key or 'test' for canned data
   -c, --count <count>     number or screens (default: "10")
   -h, --help              display help for command
   ```
-  # To Deploy
-  First check in changes and make sure the version number is updated in package.json
-  ```
-  $ npm publish
-  ```
+# To Deploy
+First check in changes and make sure the version number is updated in package.json
+```
+$ npm publish
+```

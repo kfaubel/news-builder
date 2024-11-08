@@ -4,7 +4,9 @@ import { LoggerInterface } from "./Logger";
 
 export interface ImageWriterInterface {
     saveFile(fileName: string, buf: Buffer): void;
+    deleteFile(fileName: string): void;
 }
+
 export class SimpleImageWriter implements ImageWriterInterface {
     private logger: LoggerInterface;
     private directory: string;
@@ -27,5 +29,14 @@ export class SimpleImageWriter implements ImageWriterInterface {
         } catch (e) {
             this.logger.error(`Failed to write file: ${fileName} - ${e}`);
         }  
+    }
+
+    deleteFile(fileName: string): void {
+        try {
+            const fullName: string = path.join(this.directory, fileName);
+            fs.unlinkSync(fullName);
+        } catch (e) {
+            // do nothing
+        }
     }
 }

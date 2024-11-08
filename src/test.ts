@@ -55,7 +55,7 @@ async function main() {
     logger.verbose(`Count: ${count}`);
     logger.verbose("====================================");
     
-    const cache: Kache = new Kache(logger, "news-cache.json");
+    const cache: Kache = new Kache(logger, "news-cache.json", false); // false = no detailed logging
     const simpleImageWriter: SimpleImageWriter = new SimpleImageWriter(logger, outdir);
     const newsBuilder: NewsBuilder = new NewsBuilder(logger, cache, simpleImageWriter);
 

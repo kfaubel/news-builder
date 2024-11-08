@@ -50,27 +50,16 @@ export class NewsData {
     }
 
     /**
-     * Decodes HTML and replaces <b> and <em> tags
-     * @param inStr Input string
-     * @returns Clean string
+     * getData - get the JSON list of articles from the specified source
+     * @param source - Source name (e.g.: cnn, msnbc, etc)
+     * @param key - API key from newsapi.org or 'test' to use canned data
+     * @returns an Array of NewsItem objects or null
      */
-    private fixString(inStr: string): string {
-        let outStr = he.decode(inStr);
-        
-        outStr = outStr.replace(/<b>/g, "");
-        outStr = outStr.replace(/<\/b>/g, "");
-        outStr = outStr.replace(/<em>/g, "");
-        outStr = outStr.replace(/<\/em>/g, "");
-        
-        return outStr;
-    }
-
     public async getData(source: string, key: string): Promise<Array<NewsItem> | null> {
         const url = `https://newsapi.org/v2/top-headlines?sources=${source}&apiKey=${key}`; 
 
-        let newsItems: Array<NewsItem>;
-        
-        let newsJson: NewsJson | null = null;
+        let newsItems: Array<NewsItem>;       // This is what we will return        
+        let newsJson: NewsJson | null = null; // This is the data we get from the API
 
         const cacheName: string = (key === "test") ? `${source}-test` : source;
 
@@ -83,35 +72,19 @@ export class NewsData {
             newsItems = [];
             if (key === "test") {
                 this.logger.info("NewsData: We are going to use test data");
-                const sampleNewsFile = path.join(".", "testdata.json");
-                const sampleBuffer = fs.readFileSync(sampleNewsFile);
-                newsJson = JSON.parse(sampleBuffer.toString());
+                newsJson = await this.readTestData();
             } else {
-                this.logger.verbose(`NewsData: ${source} - Fetching: ${url}`);
-
-                const options: AxiosRequestConfig = {
-                    responseType: "json",
-                    headers: {                        
-                        "Content-Encoding": "gzip"
-                    },
-                    timeout: 10000
-                };
-
-                const startTime = new Date();
-                await axios.get(url, options)
-                    .then((res: AxiosResponse) => {
-                        if (typeof process.env.TRACK_GET_TIMES !== "undefined" ) {
-                            this.logger.info(`NewsData: GET TIME: ${new Date().getTime() - startTime.getTime()}ms`);
-                        }
-                        newsJson = res.data;
-                    })
-                    .catch((error) => {
-                        this.logger.warn(`NewsData: No articles: ${error})`);
-                        return null;
-                    });
+                this.logger.verbose(`NewsData: ${source} - Fetching: ${url}`);                
+                newsJson = await this.fetchLiveData(url);
             }
             
             if (newsJson === null) {
+                this.logger.error(`NewsData: No data found for source: ${source}`);
+                return null;
+            }
+
+            if (newsJson.articles === null) {
+                this.logger.error(`NewsData: No articles found for source: ${source}`);
                 return null;
             }
 
@@ -137,5 +110,60 @@ export class NewsData {
         }
 
         return newsItems;
+    }
+
+    /**
+     * readTestData - return the canned data to prevent extra calls to the API
+     * @returns Promise<newsJson>
+     */
+    private async readTestData(): Promise<NewsJson> {
+        const sampleNewsFile = path.join(".", "testdata.json");
+        const sampleBuffer = fs.readFileSync(sampleNewsFile);
+        const newsJson: NewsJson = JSON.parse(sampleBuffer.toString());
+        return newsJson;
+    }
+
+    /**
+     * fetchLiveData - fetch the data from the API specified in the URL
+     * @param url 
+     * @returns Promise<newsJson>
+     */
+    private async fetchLiveData(url: string): Promise<NewsJson> {
+        const options: AxiosRequestConfig = {
+            responseType: "json",
+            headers: {
+                "Content-Encoding": "gzip"
+            },
+            timeout: 10000
+        };
+
+        const startTime = new Date();
+        try {
+            const response: AxiosResponse = await axios.get(url, options);
+            if (typeof process.env.TRACK_GET_TIMES !== "undefined") {
+                this.logger.info(`NewsData: GET TIME: ${new Date().getTime() - startTime.getTime()}ms`);
+            }
+            const newsJson: NewsJson = response.data;
+            return newsJson;
+        } catch (error) {
+            this.logger.error(`NewsData: Failed to fetch data from API - ${error}`);
+            throw error;
+        }
+    }
+
+    /**
+     * Decodes HTML and replaces 'b' and 'em' tags
+     * @param inStr Input string
+     * @returns Clean string
+     */
+    private fixString(inStr: string): string {
+        let outStr = he.decode(inStr);
+        
+        outStr = outStr.replace(/<b>/g, "");
+        outStr = outStr.replace(/<\/b>/g, "");
+        outStr = outStr.replace(/<em>/g, "");
+        outStr = outStr.replace(/<\/em>/g, "");
+        
+        return outStr;
     }
 }
